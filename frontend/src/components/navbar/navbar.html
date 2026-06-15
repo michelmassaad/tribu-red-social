@@ -1,0 +1,49 @@
+<nav class="navbar navbar-expand-md navbar-dark ui-navbar sticky-top">
+  <div class="container">
+    
+<a class="navbar-brand d-flex align-items-center fw-bold text-gradient" routerLink="/publicaciones">
+  <i class="bi bi-people-fill me-2 fs-4 text-cyan"></i>
+  <span>Tribu</span>
+</a>
+
+    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav mx-auto gap-2 my-2 my-md-0">
+        @if (auth.isAuthenticated()) {
+          <li class="nav-item">
+            <a class="nav-link ui-nav-link" routerLink="/publicaciones" routerLinkActive="active">Publicaciones</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link ui-nav-link" routerLink="/mi-perfil" routerLinkActive="active">Mi Perfil</a>
+          </li>
+        } @else {
+          <li class="nav-item">
+            <a class="nav-link ui-nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link ui-nav-link" routerLink="/registro" routerLinkActive="active">Registro</a>
+          </li>
+        }
+      </ul>
+
+      <div class="navbar-nav ms-auto align-items-center flex-row justify-content-center">
+        @if (auth.isAuthenticated()) {
+          <div class="d-flex align-items-center gap-3">
+            <div class="user-pill d-flex align-items-center gap-2 px-3 py-1.5 rounded-pill">
+              <img [src]="auth.user()?.fotoPerfil || 'https://ui-avatars.com/api/?name=' + auth.nombreCompleto() + '&background=6366f1&color=fff&size=32'"
+                   alt="Avatar" class="ui-avatar-nav" />
+              <span class="ui-username d-none d-lg-inline fw-semibold">{{ auth.nombreCompleto() }}</span>
+            </div>
+            <button class="btn btn-ui-logout" (click)="auth.cerrarSesion()" title="Cerrar Sesión">
+              <i class="bi bi-power"></i>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+  </div>
+</nav>

@@ -1,0 +1,76 @@
+.small-error {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.role-container-ui {
+  background-color: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--app-border);
+}
+
+.radio-ui:checked {
+  background-color: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+}
+
+.custom-file-input-ui::-webkit-file-upload-button {
+  background-color: var(--app-border);
+  color: var(--app-text);
+  border: none;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Estilos para el botón de carga de archivos en Firefox */
+.small-error {
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.role-container-ui {
+  background-color: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--app-border);
+}
+
+.radio-ui:checked {
+  background-color: var(--app-primary) !important;
+  border-color: var(--app-primary) !important;
+}
+
+/* ── REPLICADOR VISUAL NATIVO (MÁSCARA EN ESPAÑOL) ── */
+.file-upload-wrapper {
+  width: 100%;
+}
+
+/* Calca el botoncito interno "Choose file" de la captura */
+.fake-file-btn-badge {
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+/* Calca el texto de la derecha "No file chosen" */
+.fake-file-text {
+  color: #64748b; /* Mismo tono gris apagado de la foto */
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+/* ── REACCIONES INTERACTIVAS DEL FOCO CÓSMICO ── */
+.real-file-input:hover + .visual-file-counterpart .fake-file-btn-badge {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Mantiene el brillo cyan neón global de tu sistema cuando el usuario interactúa */
+.real-file-input:focus + .visual-file-counterpart {
+  border-color: var(--app-cyan) !important;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15) !important;
+}

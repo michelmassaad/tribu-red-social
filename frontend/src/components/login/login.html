@@ -1,0 +1,66 @@
+<div class="container d-flex justify-content-center min-vh-100 py-5">
+  <div class="row w-100 justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+      
+      <div class="card-ui p-4 p-md-5">
+        <div class="text-center mb-4">
+          <h3 class="fw-bold text-white mb-1 tracking-tight">Iniciar sesión</h3>
+          <p class="text-muted small">Introducí tus credenciales para acceder a tu feed</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          
+          <div class="mb-3">
+            <label class="form-label text-secondary small fw-semibold" for="identificador">Correo o Usuario</label>
+            <input type="text" formControlName="identificador" id="identificador" class="form-control form-control-ui"
+                   placeholder="ejemplo@mail.com o username" [class.is-invalid]="loginForm.get('identificador')?.invalid && loginForm.get('identificador')?.touched">
+            @if(loginForm.get('identificador')?.invalid && loginForm.get('identificador')?.touched) {
+              <div class="invalid-feedback fw-medium">Este campo de acceso es requerido.</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label text-secondary small fw-semibold" for="password">Contraseña</label>
+            <div class="input-group">
+              <input [type]="mostrarPassword() ? 'text' : 'password'" formControlName="password" id="password"
+                     class="form-control form-control-ui" placeholder="••••••••" [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              <button type="button" class="btn btn-ui-input-group" (click)="habilitarPassword()" tabindex="-1">
+                <i class="bi text-muted" [ngClass]="mostrarPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+              </button>
+              @if(loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+                <div class="invalid-feedback fw-medium">La clave debe tener mínimo 8 caracteres, una mayúscula y un número.</div>
+              }
+            </div>
+          </div>
+
+          <div class="d-grid gap-3">
+            <button type="submit" [disabled]="loginForm.invalid || loading()" class="btn btn-ui-primary py-2.5 fw-semibold">
+              @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span>Conectando... } @else { Entrar }
+            </button>
+
+            @if (errorMensaje()) {
+              <div class="alert alert-ui-danger text-center small py-2 m-0">{{ errorMensaje() }}</div>
+            }
+
+            <!-- <div class="ui-test-box p-3 rounded-3 text-center">
+              <span class="text-muted d-block small mb-2 fw-medium">Usuarios de prueba (Corrección)</span>
+              <div class="d-flex flex-wrap justify-content-center gap-1.5">
+                @for (u of usuariosTest; track u.identificador) {
+                  <button type="button" class="btn btn-ui-pill" (click)="loginTest(u.identificador, u.password)" [disabled]="loading()">
+                    {{ u.label }}
+                  </button>
+                }
+              </div>
+            </div> -->
+
+            <div class="text-center mt-2">
+              <p class="text-muted small mb-0">¿No tenés una cuenta? <a routerLink="/registro" class="text-link-cyan fw-medium">Registrate acá</a></p>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>

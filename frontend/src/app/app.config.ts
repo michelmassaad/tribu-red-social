@@ -1,12 +1,27 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
-import { provideRouter } from '@angular/router';
-
+import {
+  PreloadAllModules,
+  provideRouter,
+  withComponentInputBinding,
+  withInMemoryScrolling,
+  withPreloading,
+} from '@angular/router';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
-import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+// import { jwtInterceptor } from '../interceptors/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), provideClientHydration(withEventReplay())
-  ]
+    // ✅ Un solo provideRouter con todas las opciones
+    provideRouter(
+      routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
+      withComponentInputBinding(),
+      withPreloading(PreloadAllModules),
+    ),
+    // ✅ withInterceptors agrega el JWT automáticamente a cada request
+    provideHttpClient(withFetch(),// withInterceptors([jwtInterceptor])  
+    ),
+  ],
 };

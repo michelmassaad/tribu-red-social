@@ -1,0 +1,61 @@
+.ui-navbar {
+  background: rgba(9, 13, 22, 0.7) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--app-border);
+  padding: 0.75rem 0 !important;
+}
+
+.text-gradient {
+  background: linear-gradient(to right, #06b6d4, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ui-nav-link {
+  color: var(--app-text-muted) !important;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.5rem 1.2rem !important;
+  border-radius: var(--app-radius-sm);
+  transition: all 0.2s ease;
+}
+
+.ui-nav-link:hover,
+.ui-nav-link.active {
+  color: var(--app-text) !important;
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+.ui-nav-link.active {
+  box-shadow: 0 2px 0 var(--app-cyan);
+}
+
+.user-pill {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--app-border);
+}
+
+.ui-avatar-nav {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.btn-ui-logout {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--app-radius-sm);
+  transition: all 0.2s;
+}
+
+.btn-ui-logout:hover {
+  border-color: var(--app-danger);
+  color: #fff;
+  background: var(--app-danger);
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.4);
+}

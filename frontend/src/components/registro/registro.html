@@ -1,0 +1,141 @@
+<div class="container d-flex justify-content-center min-vh-100 py-5">
+  <div class="row w-100 justify-content-center">
+    <div class="col-12 col-md-10 col-lg-7 col-xl-6">
+
+      <div class="card-ui p-4 p-md-5">
+        <div class="mb-4">
+          <h3 class="fw-bold text-white mb-1 tracking-tight">Crear una cuenta</h3>
+          <p class="text-muted small">Completá los campos requeridos para el alta en el sistema</p>
+        </div>
+
+        <form [formGroup]="registroForm" (ngSubmit)="onSubmit()">
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Nombre</label>
+              <input type="text" formControlName="nombre" class="form-control form-control-ui" placeholder="Juan"
+                [class.is-invalid]="registroForm.get('nombre')?.invalid && registroForm.get('nombre')?.touched">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Apellido</label>
+              <input type="text" formControlName="apellido" class="form-control form-control-ui" placeholder="Perez"
+                [class.is-invalid]="registroForm.get('apellido')?.invalid && registroForm.get('apellido')?.touched">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Correo Electrónico</label>
+              <input type="email" formControlName="correo" class="form-control form-control-ui"
+                placeholder="juan@mail.com"
+                [class.is-invalid]="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Nombre de Usuario</label>
+              <input type="text" formControlName="nombreUsuario" class="form-control form-control-ui"
+                placeholder="juanperez"
+                [class.is-invalid]="registroForm.get('nombreUsuario')?.invalid && registroForm.get('nombreUsuario')?.touched">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Contraseña</label>
+              <div class="input-group">
+                <input [type]="mostrarPassword() ? 'text' : 'password'" formControlName="password"
+                  class="form-control form-control-ui" placeholder="••••••••"
+                  [class.is-invalid]="registroForm.get('password')?.invalid && registroForm.get('password')?.touched">
+                <button type="button" class="btn btn-ui-input-group" (click)="togglePassword()">
+                  <i class="bi text-muted" [ngClass]="mostrarPassword() ? 'bi-eye-slash' : 'bi-eye'"></i>
+                </button>
+              </div>
+              @if (registroForm.get('password')?.invalid && registroForm.get('password')?.touched) {
+              <small class="text-danger d-block mt-1 small-error">Mínimo 8 caracteres, una mayúscula y un
+                número.</small>
+              }
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Repetir Contraseña</label>
+              <input type="password" formControlName="repetirPassword" class="form-control form-control-ui"
+                placeholder="••••••••"
+                [class.is-invalid]="(registroForm.get('repetirPassword')?.touched && registroForm.hasError('noCoincide'))">
+              @if (registroForm.touched && registroForm.hasError('noCoincide')) {
+              <small class="text-danger d-block mt-1 small-error">Las contraseñas no coinciden.</small>
+              }
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Fecha de Nacimiento</label>
+              <input type="date" formControlName="fechaNacimiento" class="form-control form-control-ui"
+                [class.is-invalid]="registroForm.get('fechaNacimiento')?.invalid && registroForm.get('fechaNacimiento')?.touched">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label text-secondary small fw-semibold">Imagen de Perfil</label>
+
+              <div class="position-relative file-upload-wrapper">
+                <input type="file" (change)="onFileChange($event)"
+                  class="position-absolute top-0 start-0 w-100 h-100 opacity-0 real-file-input" accept="image/*"
+                  style="cursor: pointer; z-index: 2;">
+
+                <div class="form-control-ui d-flex align-items-center gap-3 visual-file-counterpart"
+                  style="z-index: 1; padding: 0.4rem 0.6rem;">
+
+                  <div class="fake-file-btn-badge">
+                    <i class="bi bi-paperclip ms-1"></i>
+                  </div>
+
+                  <div class="fake-file-text text-truncate small" [class.text-white]="fotoSeleccionada">
+                    {{ fotoSeleccionada ? fotoSeleccionada.name : 'Ningún archivo seleccionado' }}
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-secondary small fw-semibold">Descripción Breve</label>
+            <textarea formControlName="descripcionBreve" class="form-control form-control-ui" rows="2"
+              placeholder="Contanos un poco sobre vos..."
+              [class.is-invalid]="registroForm.get('descripcionBreve')?.invalid && registroForm.get('descripcionBreve')?.touched"></textarea>
+          </div>
+
+          <!-- <div class="mb-4 p-3 rounded-3 role-container-ui text-center">
+            <label class="form-label d-block text-secondary small fw-semibold mb-2">Tipo de Perfil Asignado</label>
+            <div class="form-check form-check-inline me-4">
+              <input class="form-check-input radio-ui" type="radio" formControlName="perfil" id="roleUser" value="usuario">
+              <label class="form-check-label text-light small" for="roleUser">Usuario Estándar</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input radio-ui" type="radio" formControlName="perfil" id="roleAdmin" value="administrador">
+              <label class="form-check-label text-light small" for="roleAdmin">Administrador</label>
+            </div>
+          </div> -->
+
+          @if (errorMensaje()) {
+          <div class="alert alert-ui-danger text-center small py-2 mb-3">{{ errorMensaje() }}</div>
+          }
+          @if (mensajeExitoso()) {
+          <div class="alert alert-ui-success text-center small py-2 mb-3">{{ mensajeExitoso() }}</div>
+          }
+
+          <div class="d-grid gap-3">
+            <button type="submit" [disabled]="registroForm.invalid || loading()"
+              class="btn btn-ui-primary py-2.5 fw-semibold">
+              @if (loading()) { <span class="spinner-border spinner-border-sm me-2"></span>Registrando... } @else {
+              Crear Cuenta }
+            </button>
+            <div class="text-center">
+              <p class="text-muted small mb-0">¿Ya tenés cuenta? <a routerLink="/login"
+                  class="text-link-cyan fw-medium">Iniciá sesión</a></p>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
