@@ -8,7 +8,7 @@ import {
 } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
-// import { jwtInterceptor } from '../interceptors/jwt.interceptor';
+import { jwtInterceptor } from '../interceptors/jwt.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,7 +21,7 @@ export const appConfig: ApplicationConfig = {
       withPreloading(PreloadAllModules),
     ),
     // ✅ withInterceptors agrega el JWT automáticamente a cada request
-    provideHttpClient(withFetch(),// withInterceptors([jwtInterceptor])  
+    provideHttpClient(withFetch(), withInterceptors([jwtInterceptor])  
     ),
   ],
 };

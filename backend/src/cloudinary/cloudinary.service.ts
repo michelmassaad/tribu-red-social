@@ -16,12 +16,12 @@ export class CloudinaryService {
     });
   }
 
-  subirImagen(archivo: Express.Multer.File): Promise<{ url: string; publicId: string }> {
+  subirImagen(archivo: Express.Multer.File, carpeta: string): Promise<{ url: string; publicId: string }> {
     // Cloudinary no acepta Buffer directamente, necesita un stream
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          folder: 'red-social/perfiles', // Carpeta dentro de tu cuenta de Cloudinary
+          folder: carpeta, // Carpeta dentro de tu cuenta de Cloudinary
           transformation: [
             { width: 400, height: 400, crop: 'fill', gravity: 'face' },
           ],

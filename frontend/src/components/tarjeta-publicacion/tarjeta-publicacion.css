@@ -1,0 +1,109 @@
+.tarjeta {
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Cabecera */
+.tarjeta-cabecera {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.tarjeta-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--app-border);
+}
+
+.tarjeta-autor {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--app-text);
+}
+
+.tarjeta-fecha {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--app-text-muted);
+}
+
+/* Contenido */
+.tarjeta-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--app-text);
+  margin-bottom: 0.4rem;
+}
+
+.tarjeta-descripcion {
+  font-size: 0.9rem;
+  color: rgba(248, 250, 252, 0.75);
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+}
+
+.tarjeta-imagen {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--app-border);
+}
+
+/* Acciones */
+.tarjeta-acciones {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--app-border);
+}
+
+.btn-like {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  border-radius: 20px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-like:hover { border-color: var(--app-danger); color: var(--app-danger); }
+
+.btn-like.activo {
+  border-color: var(--app-danger);
+  color: var(--app-danger);
+  background: rgba(244, 63, 94, 0.1);
+}
+
+.btn-eliminar {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--app-text-muted);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-eliminar:hover {
+  border-color: var(--app-danger);
+  color: var(--app-danger);
+  background: rgba(244, 63, 94, 0.08);
+}

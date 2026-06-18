@@ -1,0 +1,58 @@
+<div class="card-ui tarjeta">
+
+  <!-- Cabecera: avatar + nombre del autor + fecha -->
+  <div class="tarjeta-cabecera">
+    <img
+      class="tarjeta-avatar"
+      [src]="publicacion().autor.fotoPerfil ||
+        'https://ui-avatars.com/api/?name=' + publicacion().autor.nombre +
+        '&background=6366f1&color=fff&size=40'"
+      [alt]="publicacion().autor.nombreUsuario"
+/>
+    <div>
+      <p class="tarjeta-autor">
+        {{ publicacion().autor.nombre }} {{ publicacion().autor.apellido }}
+      </p>
+      <p class="tarjeta-fecha">
+        &#64;{{ publicacion().autor.nombreUsuario }} ·
+        {{ publicacion().createdAt | date:'dd/MM/yy HH:mm' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Contenido -->
+  <h5 class="tarjeta-titulo">{{ publicacion().titulo }}</h5>
+  <p class="tarjeta-descripcion">{{ publicacion().descripcion }}</p>
+
+  <!-- Imagen (si tiene) -->
+  @if (publicacion().imagenUrl) {
+    <img
+      class="tarjeta-imagen"
+      [src]="publicacion().imagenUrl"
+      [alt]="publicacion().titulo"
+      loading="lazy"
+/>
+  }
+
+  <!-- Botones de acción -->
+  <div class="tarjeta-acciones">
+
+    <!-- Botón de like -->
+    <button
+      class="btn-like"
+      [class.activo]="yaLeDiLike()"
+      (click)="clickLike()"
+>
+      <i class="bi" [class.bi-heart-fill]="yaLeDiLike()" [class.bi-heart]="!yaLeDiLike()"></i>
+      {{ publicacion().likes.length }}
+    </button>
+
+    <!-- Botón eliminar (solo si es mía o soy admin) -->
+    @if (puedoEliminar()) {
+      <button class="btn-eliminar" (click)="clickEliminar()">
+        <i class="bi bi-trash3"></i> Eliminar
+      </button>
+    }
+
+  </div>
+</div>

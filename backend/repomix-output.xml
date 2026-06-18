@@ -1,0 +1,1398 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.gitignore
+.prettierrc
+eslint.config.mjs
+nest-cli.json
+package.json
+README.md
+src/app.controller.spec.ts
+src/app.controller.ts
+src/app.module.ts
+src/app.service.ts
+src/auth/auth.controller.ts
+src/auth/auth.module.ts
+src/auth/auth.service.ts
+src/auth/decorators/public.decorator.ts
+src/auth/dto/login.dto.ts
+src/auth/dto/registro.dto.ts
+src/auth/guards/jwt-auth.guard.ts
+src/auth/strategies/jwt.strategy.ts
+src/cloudinary/cloudinary.module.ts
+src/cloudinary/cloudinary.service.ts
+src/main.ts
+src/publicaciones/dto/crear-publicacion.dto.ts
+src/publicaciones/publicaciones.controller.ts
+src/publicaciones/publicaciones.module.ts
+src/publicaciones/publicaciones.service.ts
+src/publicaciones/schemas/publicacion.schema.ts
+src/usuarios/schemas/usuario.schema.ts
+src/usuarios/usuarios.module.ts
+src/usuarios/usuarios.service.ts
+test/app.e2e-spec.ts
+test/jest-e2e.json
+tsconfig.build.json
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".gitignore">
+# compiled output
+/dist
+/node_modules
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# temp directory
+.temp
+.tmp
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (https://nodejs.org/api/report.html)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+</file>
+
+<file path=".prettierrc">
+{
+  "printWidth": 100,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "endOfLine": "auto"
+}
+</file>
+
+<file path="eslint.config.mjs">
+// @ts-check
+import eslint from '@eslint/js';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    ignores: ['eslint.config.mjs'],
+  },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommendedTypeChecked,
+  eslintPluginPrettierRecommended,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+      sourceType: 'commonjs',
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      "prettier/prettier": ["error", { endOfLine: "auto" }],
+    },
+  },
+);
+</file>
+
+<file path="nest-cli.json">
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true
+  }
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "nest build",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.0.1",
+    "bcryptjs": "^3.0.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "cloudinary": "^2.10.0",
+    "mongodb": "^7.3.0",
+    "mongoose": "^9.7.0",
+    "multer": "^2.2.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^30.0.0",
+    "@types/multer": "^2.1.0",
+    "@types/node": "^24.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.0.0",
+    "eslint": "^9.18.0",
+    "globals": "^17.0.0",
+    "jest": "^30.0.0",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  }
+}
+</file>
+
+<file path="README.md">
+<p align="center">
+  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
+</p>
+
+[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
+[circleci-url]: https://circleci.com/gh/nestjs/nest
+
+  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
+    <p align="center">
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
+<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
+<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
+<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
+<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
+<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
+  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
+    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
+  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
+</p>
+  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
+  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+
+## Description
+
+[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+
+## Project setup
+
+```bash
+$ npm install
+```
+
+## Compile and run the project
+
+```bash
+# development
+$ npm run start
+
+# watch mode
+$ npm run start:dev
+
+# production mode
+$ npm run start:prod
+```
+
+## Run tests
+
+```bash
+# unit tests
+$ npm run test
+
+# e2e tests
+$ npm run test:e2e
+
+# test coverage
+$ npm run test:cov
+```
+
+## Deployment
+
+When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+
+If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+
+```bash
+$ npm install -g @nestjs/mau
+$ mau deploy
+```
+
+With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+
+## Resources
+
+Check out a few resources that may come in handy when working with NestJS:
+
+- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
+- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
+- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
+- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
+- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## Support
+
+Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+## Stay in touch
+
+- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
+- Website - [https://nestjs.com](https://nestjs.com/)
+- Twitter - [@nestframework](https://twitter.com/nestframework)
+
+## License
+
+Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+</file>
+
+<file path="src/app.controller.spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+
+describe('AppController', () => {
+  let appController: AppController;
+
+  beforeEach(async () => {
+    const app: TestingModule = await Test.createTestingModule({
+      controllers: [AppController],
+      providers: [AppService],
+    }).compile();
+
+    appController = app.get<AppController>(AppController);
+  });
+
+  describe('root', () => {
+    it('should return "Hello World!"', () => {
+      expect(appController.getHello()).toBe('Hello World!');
+    });
+  });
+});
+</file>
+
+<file path="src/app.controller.ts">
+import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  getHello(): string {
+    return this.appService.getHello();
+  }
+}
+</file>
+
+<file path="src/app.module.ts">
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { UsuariosModule } from './usuarios/usuarios.module';
+import { PublicacionesModule } from './publicaciones/publicaciones.module';
+
+@Module({
+  imports: [
+    // Carga el .env y lo hace disponible en toda la app
+    ConfigModule.forRoot({ isGlobal: true }),
+
+    // Conecta con MongoDB usando la URI del .env
+    MongooseModule.forRoot(process.env.MONGODB_URI!),
+
+    AuthModule,
+    UsuariosModule,
+    PublicacionesModule,
+  ],
+})
+export class AppModule {}
+</file>
+
+<file path="src/app.service.ts">
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getHello(): string {
+    return 'Hello World!';
+  }
+}
+</file>
+
+<file path="src/auth/auth.controller.ts">
+import {
+  Controller, Post, Body, UploadedFile,
+  UseInterceptors, HttpCode, HttpStatus,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer'; // ← memoryStorage: la foto queda en RAM
+import { AuthService } from './auth.service';
+import { RegistroDto } from './dto/registro.dto';
+import { LoginDto } from './dto/login.dto';
+
+// Multer con memoryStorage: la foto se guarda en RAM como Buffer.
+// Luego el AuthService la envía a Cloudinary desde esa RAM.
+// NO se guarda nada en disco del servidor.
+const multerOpciones = {
+  storage: memoryStorage(),
+  fileFilter: (req: any, file: any, cb: any) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes'), false);
+    }
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB máximo
+};
+
+@Controller('auth') // → /api/auth
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  // POST /api/auth/registro
+  // Recibe FormData (campos de texto + imagen)
+  @Post('registro')
+  @HttpCode(HttpStatus.CREATED) // → HTTP 201
+  @UseInterceptors(FileInterceptor('file', multerOpciones))
+  registro(
+    @Body() dto: RegistroDto,
+    @UploadedFile() archivo?: Express.Multer.File,
+  ) {
+    return this.authService.registro(dto, archivo);
+  }
+
+  // POST /api/auth/login
+  // Recibe JSON con { identificador, password }
+  @Post('login')
+  @HttpCode(HttpStatus.OK) // → HTTP 200
+  login(@Body() dto: LoginDto) {
+    return this.authService.login(dto);
+  }
+}
+</file>
+
+<file path="src/auth/auth.module.ts">
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport'; // ← Este registra las estrategias
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './strategies/jwt.strategy'; // ← Esta es la estrategia "jwt"
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UsuariosModule } from '../usuarios/usuarios.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    UsuariosModule,
+    CloudinaryModule,
+    PassportModule.register({ defaultStrategy: 'jwt' }), // ← registra Passport
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get<string>('JWT_SECRET') || 'clave-fallback',
+        signOptions: { expiresIn: '15m' },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [
+    AuthService,
+    JwtStrategy,   // ← le dice a Passport que existe la estrategia "jwt"
+    JwtAuthGuard,
+  ],
+  exports: [AuthService, JwtAuthGuard, JwtModule],
+})
+export class AuthModule {}
+</file>
+
+<file path="src/auth/auth.service.ts">
+import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { UsuariosService } from '../usuarios/usuarios.service';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { RegistroDto } from './dto/registro.dto';
+import { LoginDto } from './dto/login.dto';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private usuariosService: UsuariosService,
+    private jwtService: JwtService,
+    private cloudinaryService: CloudinaryService,
+  ) {}
+
+  // ── REGISTRO ──────────────────────────────────────────────────────────────
+  async registro(dto: RegistroDto, archivo?: Express.Multer.File) {
+
+    // 1. Verificar que el correo no esté ya registrado
+    const correoExistente = await this.usuariosService.buscarPorCorreo(dto.correo);
+    if (correoExistente) {
+      throw new ConflictException('El correo ya está registrado'); // HTTP 409
+    }
+
+    // 2. Verificar que el nombreUsuario no esté en uso
+    const usuarioExistente = await this.usuariosService.buscarPorNombreUsuario(dto.nombreUsuario);
+    if (usuarioExistente) {
+      throw new ConflictException('El nombre de usuario ya está en uso'); // HTTP 409
+    }
+
+    // 3. Encriptar la contraseña
+    const salt = await bcrypt.genSalt(10);
+    const passwordHasheada = await bcrypt.hash(dto.password, salt);
+
+    // 4. Subir la foto a Cloudinary (si se adjuntó una)
+    let fotoPerfil = '';
+    let fotoPerfilPublicId = '';
+
+    if (archivo) {
+      // archivo.buffer contiene la foto en RAM (gracias a memoryStorage en el controller)
+      const resultado = await this.cloudinaryService.subirImagen(archivo, 'red-social/usuarios');
+      fotoPerfil = resultado.url;       // URL pública de Cloudinary
+      fotoPerfilPublicId = resultado.publicId;
+    }
+
+    // 5. Guardar el usuario en MongoDB
+    const usuario = await this.usuariosService.crear({
+      nombre: dto.nombre,
+      apellido: dto.apellido,
+      correo: dto.correo,
+      nombreUsuario: dto.nombreUsuario,
+      password: passwordHasheada,
+      fechaNacimiento: new Date(dto.fechaNacimiento),
+      descripcionBreve: dto.descripcionBreve || '',
+      fotoPerfil,
+      fotoPerfilPublicId,
+      perfil: dto.perfil || 'usuario',
+      activo: true,
+    });
+
+    // 6. Retornar sin exponer el password
+    const obj = usuario.toObject();
+    const { password, ...usuarioSinPassword } = obj;
+
+    return {
+      mensaje: 'Usuario registrado exitosamente',
+      usuario: usuarioSinPassword,
+    };
+  }
+
+  // ── LOGIN ─────────────────────────────────────────────────────────────────
+  async login(dto: LoginDto) {
+
+    // 1. Buscar por correo O por nombreUsuario
+    let usuario = await this.usuariosService.buscarPorCorreo(dto.identificador);
+    if (!usuario) {
+      usuario = await this.usuariosService.buscarPorNombreUsuario(dto.identificador);
+    }
+
+    // 2. Si no existe o está deshabilitado → 401
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    // 3. Comparar la contraseña recibida con el hash guardado
+    const passwordValida = await bcrypt.compare(dto.password, usuario.password);
+    if (!passwordValida) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    // 4. Generar el token JWT
+    const token = this.jwtService.sign({
+      sub: usuario._id.toString(),
+      correo: usuario.correo,
+      nombreUsuario: usuario.nombreUsuario,
+      perfil: usuario.perfil,
+    });
+
+    // 5. Retornar token y datos del usuario (sin password)
+    const obj = usuario.toObject();
+    const { password, ...usuarioSinPassword } = obj;
+
+    return {
+      token,             // El frontend busca "token" (no "access_token")
+      usuario: usuarioSinPassword,
+    };
+  }
+}
+</file>
+
+<file path="src/auth/decorators/public.decorator.ts">
+import { SetMetadata } from '@nestjs/common';
+
+// Cuando ponés @Public() arriba de una ruta,
+// le decís al guard que la deje pasar sin verificar el token
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+</file>
+
+<file path="src/auth/dto/login.dto.ts">
+import { IsString, IsNotEmpty } from 'class-validator';
+
+export class LoginDto {
+  // El frontend manda "identificador" que puede ser correo o nombreUsuario
+  @IsString()
+  @IsNotEmpty({ message: 'El correo o nombre de usuario es obligatorio' })
+  identificador: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+  password: string;
+}
+</file>
+
+<file path="src/auth/dto/registro.dto.ts">
+import {
+  IsEmail, IsString, IsNotEmpty,
+  MinLength, IsDateString, IsOptional, Matches,
+} from 'class-validator';
+
+export class RegistroDto {
+
+  @IsString()
+  @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  nombre: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'El apellido es obligatorio' })
+  apellido: string;
+
+  @IsEmail({}, { message: 'El correo no tiene formato válido' })
+  correo: string;
+
+  @IsString()
+  @MinLength(3, { message: 'Mínimo 3 caracteres' })
+  nombreUsuario: string;
+
+  @IsString()
+  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+  @Matches(/^(?=.*[A-Z])(?=.*\d).+$/, {
+    message: 'La contraseña debe tener al menos una mayúscula y un número',
+  })
+  password: string;
+
+  @IsDateString({}, { message: 'Formato de fecha: YYYY-MM-DD' })
+  fechaNacimiento: string;
+
+  @IsOptional()
+  @IsString()
+  descripcionBreve?: string;
+
+  @IsOptional()
+  @IsString()
+  perfil?: string;
+
+  // La foto viene separada — Multer la procesa, no va en el DTO
+}
+</file>
+
+<file path="src/auth/guards/jwt-auth.guard.ts">
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    // Pregunta: ¿esta ruta tiene el decorador @Public()?
+    const esPublica = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    // Si es pública, la dejamos pasar sin verificar
+    if (esPublica) return true;
+
+    // Si no es pública, verificamos el token normalmente
+    return super.canActivate(context);
+  }
+}
+</file>
+
+<file path="src/auth/strategies/jwt.strategy.ts">
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UsuariosService } from '../../usuarios/usuarios.service';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+
+  constructor(private usuariosService: UsuariosService) {
+    super({
+      // Busca el token en el header: Authorization: Bearer <token>
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET || 'clave-fallback',
+    });
+  }
+
+  // NestJS llama a este método automáticamente si el token es válido.
+  // Lo que retornemos acá va a estar disponible como "req.user" en el controller.
+  async validate(payload: { sub: string; correo: string; perfil: string }) {
+    const usuario = await this.usuariosService.buscarPorId(payload.sub);
+
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException('Token inválido');
+    }
+
+    return {
+      userId: payload.sub,
+      correo: payload.correo,
+      perfil: payload.perfil,
+    };
+  }
+}
+</file>
+
+<file path="src/cloudinary/cloudinary.module.ts">
+import { Module } from '@nestjs/common';
+import { CloudinaryService } from './cloudinary.service';
+
+@Module({
+  providers: [CloudinaryService],
+  exports: [CloudinaryService], // Exportamos para que AuthModule lo pueda usar
+})
+export class CloudinaryModule {}
+</file>
+
+<file path="src/cloudinary/cloudinary.service.ts">
+// Este servicio hace una sola cosa: recibe la foto en RAM (Buffer)
+// y la sube a Cloudinary, devolviendo la URL pública.
+import { Injectable } from '@nestjs/common';
+import { v2 as cloudinary } from 'cloudinary';
+
+@Injectable()
+export class CloudinaryService {
+
+  constructor() {
+    // Configuramos Cloudinary con las credenciales del .env
+    // Esto se ejecuta una sola vez cuando arranca el servidor
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+  }
+
+  subirImagen(archivo: Express.Multer.File, carpeta: string): Promise<{ url: string; publicId: string }> {
+    // Cloudinary no acepta Buffer directamente, necesita un stream
+    return new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: carpeta, // Carpeta dentro de tu cuenta de Cloudinary
+          transformation: [
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+          ],
+        },
+        (error, resultado) => {
+          if (error) return reject(error);
+          resolve({
+            url: resultado!.secure_url,    // URL pública HTTPS de la imagen
+            publicId: resultado!.public_id, // ID para borrarla después si hace falta
+          });
+        },
+      );
+
+      // Enviamos el Buffer al stream — acá es donde se sube realmente
+      stream.end(archivo.buffer);
+    });
+  }
+
+  // Útil en Sprint #4 cuando necesitemos reemplazar la foto de perfil
+  async eliminarImagen(publicId: string): Promise<void> {
+    await cloudinary.uploader.destroy(publicId);
+  }
+}
+</file>
+
+<file path="src/main.ts">
+import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+
+  // Permite que Angular (puerto 4200) hable con este servidor (3000)
+  app.enableCors({
+    origin: 'http://localhost:4200',
+  });
+
+  // Activa las validaciones de los DTOs en todos los endpoints.
+  // Si falta un campo requerido → responde automáticamente HTTP 400
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // Todas las rutas empiezan con /api → /api/auth/login, /api/auth/registro
+  app.setGlobalPrefix('api');
+
+  await app.listen(process.env.PORT || 3000);
+  console.log(`Servidor en http://localhost:${process.env.PORT || 3000}/api`);
+}
+bootstrap();
+</file>
+
+<file path="src/publicaciones/dto/crear-publicacion.dto.ts">
+import { IsString, IsNotEmpty, MinLength } from 'class-validator';
+
+export class CrearPublicacionDto {
+
+  @IsString()
+  @IsNotEmpty({ message: 'El título es obligatorio' })
+  @MinLength(3)
+  titulo: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'La descripción es obligatoria' })
+  @MinLength(10)
+  descripcion: string;
+}
+</file>
+
+<file path="src/publicaciones/publicaciones.controller.ts">
+import {
+  Controller, Get, Post, Delete, Body, Param, Query, UseGuards, Request, UseInterceptors, UploadedFile, HttpCode, HttpStatus,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
+import { PublicacionesService } from './publicaciones.service';
+import { CrearPublicacionDto } from './dto/crear-publicacion.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+
+// Configuración de Multer — igual que en auth, guarda la foto en RAM
+const multerOpciones = {
+  storage: memoryStorage(),
+  fileFilter: (req: any, file: any, cb: any) => {
+    file.mimetype.startsWith('image/') ? cb(null, true) : cb(null, false);
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB máximo
+};
+
+// @UseGuards(JwtAuthGuard) en la clase → protege TODAS las rutas de este controller
+@Controller('publicaciones')
+@UseGuards(JwtAuthGuard)
+export class PublicacionesController {
+
+  constructor(private publicacionesService: PublicacionesService) { }
+
+  // POST /api/publicaciones
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('file', multerOpciones))
+  crear(
+    @Body() dto: CrearPublicacionDto,
+    @Request() req: any,  // req.user tiene los datos del token (userId, correo, perfil)
+    @UploadedFile() archivo?: Express.Multer.File,
+  ) {
+    return this.publicacionesService.crear(dto, req.user.userId, archivo);
+  }
+
+  // GET /api/publicaciones?offset=0&limit=10&ordenarPor=fecha&autorId=xxx
+  @Get()
+  listar(
+    @Query('offset') offset = '0',
+    @Query('limit') limit = '10',
+    @Query('ordenarPor') ordenarPor = 'fecha',
+    @Query('autorId') autorId?: string,
+  ) {
+    return this.publicacionesService.listar(
+      parseInt(offset),
+      parseInt(limit),
+      ordenarPor,
+      autorId,
+    );
+  }
+
+  // POST /api/publicaciones/:id/like
+  @Post(':id/like')
+  darLike(@Param('id') id: string, @Request() req: any) {
+    return this.publicacionesService.darLike(id, req.user.userId);
+  }
+
+  // DELETE /api/publicaciones/:id/like
+  @Delete(':id/like')
+  quitarLike(@Param('id') id: string, @Request() req: any) {
+    return this.publicacionesService.quitarLike(id, req.user.userId);
+  }
+
+  // DELETE /api/publicaciones/:id
+  @Delete(':id')
+  eliminar(@Param('id') id: string, @Request() req: any) {
+    return this.publicacionesService.eliminar(
+      id,
+      req.user.userId,
+      req.user.perfil,
+    );
+  }
+}
+</file>
+
+<file path="src/publicaciones/publicaciones.module.ts">
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { PublicacionesController } from './publicaciones.controller';
+import { PublicacionesService } from './publicaciones.service';
+import { Publicacion, PublicacionSchema } from './schemas/publicacion.schema';
+import { AuthModule } from '../auth/auth.module';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+
+@Module({
+  imports: [
+    // Registra el schema de Publicacion en este módulo
+    MongooseModule.forFeature([
+      { name: Publicacion.name, schema: PublicacionSchema },
+    ]),
+    AuthModule,       // Para poder usar JwtAuthGuard
+    CloudinaryModule, // Para subir imágenes
+  ],
+  controllers: [PublicacionesController],
+  providers: [PublicacionesService],
+})
+export class PublicacionesModule {}
+</file>
+
+<file path="src/publicaciones/publicaciones.service.ts">
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+  BadRequestException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Publicacion, PublicacionDocument } from './schemas/publicacion.schema';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { CrearPublicacionDto } from './dto/crear-publicacion.dto';
+
+@Injectable()
+export class PublicacionesService {
+
+  constructor(
+    @InjectModel(Publicacion.name) private publicacionModel: Model<PublicacionDocument>,
+    private cloudinaryService: CloudinaryService,
+  ) {}
+
+  // ────────────────────────────────────────────
+  // CREAR PUBLICACIÓN
+  // ────────────────────────────────────────────
+  async crear(dto: CrearPublicacionDto, autorId: string, archivo?: Express.Multer.File) {
+
+    // Si tiene imagen, la subimos a Cloudinary
+    let imagenUrl = '';
+    let imagenPublicId = '';
+    if (archivo) {
+      const subida = await this.cloudinaryService.subirImagen(archivo, 'red-social/publicaciones');
+      imagenUrl = subida.url;
+      imagenPublicId = subida.publicId;
+    }
+
+    // Creamos el documento en MongoDB
+    const nueva = new this.publicacionModel({
+      titulo: dto.titulo,
+      descripcion: dto.descripcion,
+      imagenUrl,
+      imagenPublicId,
+      autor: new Types.ObjectId(autorId),
+    });
+
+    const guardada = await nueva.save();
+
+    // populate('autor') reemplaza el ID del autor por sus datos reales
+    return guardada.populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
+  }
+
+  // ────────────────────────────────────────────
+  // LISTAR PUBLICACIONES
+  // ────────────────────────────────────────────
+  async listar(offset = 0, limit = 10, ordenarPor = 'fecha', autorId?: string) {
+
+    // Filtro base: solo traer las que no están eliminadas
+    const filtro: any = { eliminado: false };
+
+    // Si nos pasan autorId, filtramos solo las de ese usuario
+    if (autorId) {
+      filtro.autor = new Types.ObjectId(autorId);
+    }
+
+    // Traemos las publicaciones ordenadas por fecha (más reciente primero)
+    let todasLasPublicaciones = await this.publicacionModel
+      .find(filtro)
+      .sort({ createdAt: -1 })
+      .populate('autor', 'nombre apellido nombreUsuario fotoPerfil')
+      .lean();
+
+    // Si nos piden ordenar por likes, ordenamos por cantidad de corazones
+    if (ordenarPor === 'likes') {
+      todasLasPublicaciones.sort((a, b) => b.likes.length - a.likes.length);
+    }
+
+    // Guardamos el total antes de paginar
+    const total = todasLasPublicaciones.length;
+
+    // Aplicamos la paginación: skip(offset) y tomamos solo "limit" elementos
+    const publicaciones = todasLasPublicaciones.slice(offset, offset + limit);
+
+    return { datos: publicaciones, total, limit, offset };
+  }
+
+  // ────────────────────────────────────────────
+  // DAR LIKE
+  // ────────────────────────────────────────────
+  async darLike(publicacionId: string, usuarioId: string) {
+
+    // Buscar la publicación
+    const publicacion = await this.publicacionModel.findOne({
+      _id: publicacionId,
+      eliminado: false,
+    });
+    if (!publicacion) throw new NotFoundException('Publicación no encontrada');
+
+    // Verificar que el usuario no haya dado like antes
+    const yaLeDioLike = publicacion.likes.some(
+      id => id.toString() === usuarioId
+    );
+    if (yaLeDioLike) {
+      throw new BadRequestException('Ya le diste like a esta publicación');
+    }
+
+    // $addToSet agrega el ID al array solo si no está ya (evita duplicados)
+    return this.publicacionModel
+      .findByIdAndUpdate(
+        publicacionId,
+        { $addToSet: { likes: new Types.ObjectId(usuarioId) } },
+        { new: true }, // new: true → devuelve el documento ya actualizado
+      )
+      .populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
+  }
+
+  // ────────────────────────────────────────────
+  // QUITAR LIKE
+  // ────────────────────────────────────────────
+  async quitarLike(publicacionId: string, usuarioId: string) {
+
+    const publicacion = await this.publicacionModel.findOne({
+      _id: publicacionId,
+      eliminado: false,
+    });
+    if (!publicacion) throw new NotFoundException('Publicación no encontrada');
+
+    // Verificar que había dado like
+    const teniaLike = publicacion.likes.some(
+      id => id.toString() === usuarioId
+    );
+    if (!teniaLike) {
+      throw new BadRequestException('No le habías dado like a esta publicación');
+    }
+
+    // $pull elimina el ID del array de likes
+    return this.publicacionModel
+      .findByIdAndUpdate(
+        publicacionId,
+        { $pull: { likes: new Types.ObjectId(usuarioId) } },
+        { new: true },
+      )
+      .populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
+  }
+
+  // ────────────────────────────────────────────
+  // ELIMINAR (baja lógica)
+  // ────────────────────────────────────────────
+  async eliminar(publicacionId: string, usuarioId: string, perfil: string) {
+
+    const publicacion = await this.publicacionModel.findOne({
+      _id: publicacionId,
+      eliminado: false,
+    });
+    if (!publicacion) throw new NotFoundException('Publicación no encontrada');
+
+    // Solo puede eliminar el autor o un administrador
+    const esElAutor = publicacion.autor.toString() === usuarioId;
+    const esAdmin = perfil === 'administrador';
+
+    if (!esElAutor && !esAdmin) {
+      throw new ForbiddenException('No podés eliminar esta publicación');
+    }
+
+    // No borramos el documento — solo lo marcamos como eliminado
+    await this.publicacionModel.findByIdAndUpdate(
+      publicacionId,
+      { eliminado: true }
+    );
+
+    return { mensaje: 'Publicación eliminada correctamente' };
+  }
+}
+</file>
+
+<file path="src/publicaciones/schemas/publicacion.schema.ts">
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument, Types } from 'mongoose';
+
+export type PublicacionDocument = HydratedDocument<Publicacion>;
+
+@Schema({ timestamps: true })
+export class Publicacion {
+
+  @Prop({ required: true })
+  titulo: string;
+
+  @Prop({ required: true })
+  descripcion: string;
+
+  // URL de imagen en Cloudinary (opcional)
+  @Prop({ default: '' })
+  imagenUrl: string;
+
+  // ID de Cloudinary para poder borrar la imagen si se borra la publicación
+  @Prop({ default: '' })
+  imagenPublicId: string;
+
+  // Referencia al usuario que creó la publicación
+  // Types.ObjectId + ref: 'Usuario' → permite hacer .populate() para traer los datos del autor
+  @Prop({ type: Types.ObjectId, ref: 'Usuario', required: true })
+  autor: Types.ObjectId;
+
+  // Array de IDs de usuarios que dieron like
+  // $addToSet y $pull de MongoDB garantizan que no se repitan
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Usuario' }], default: [] })
+  likes: Types.ObjectId[];
+
+  // Baja lógica: false = publicación activa, true = eliminada
+  @Prop({ default: false })
+  eliminado: boolean;
+}
+
+export const PublicacionSchema = SchemaFactory.createForClass(Publicacion);
+</file>
+
+<file path="src/usuarios/schemas/usuario.schema.ts">
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type UsuarioDocument = HydratedDocument<Usuario>;
+
+// timestamps: true → MongoDB agrega createdAt y updatedAt automáticamente
+@Schema({ timestamps: true })
+export class Usuario {
+
+  @Prop({ required: true })
+  nombre: string;
+
+  @Prop({ required: true })
+  apellido: string;
+
+  // unique: true → MongoDB rechaza correos repetidos
+  // lowercase: true → siempre guarda en minúsculas
+  @Prop({ required: true, unique: true, lowercase: true })
+  correo: string;
+
+  @Prop({ required: true, unique: true })
+  nombreUsuario: string;
+
+  @Prop({ required: true })
+  password: string; // ← Acá va el HASH, NUNCA el texto plano
+
+  @Prop({ required: true })
+  fechaNacimiento: Date;
+
+  @Prop({ default: '' })
+  descripcionBreve: string;
+
+  // URL pública de Cloudinary: https://res.cloudinary.com/...
+  @Prop({ default: '' })
+  fotoPerfil: string;
+
+  // ID de Cloudinary — lo guardamos para poder borrar/reemplazar la foto más adelante
+  @Prop({ default: '' })
+  fotoPerfilPublicId: string;
+
+  // 'usuario' por defecto, puede ser 'administrador'
+  @Prop({ default: 'usuario', enum: ['usuario', 'administrador'] })
+  perfil: string;
+
+  @Prop({ default: true })
+  activo: boolean;
+}
+
+export const UsuarioSchema = SchemaFactory.createForClass(Usuario);
+</file>
+
+<file path="src/usuarios/usuarios.module.ts">
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsuariosService } from './usuarios.service';
+import { Usuario, UsuarioSchema } from './schemas/usuario.schema';
+
+@Module({
+  imports: [
+    MongooseModule.forFeature([{ name: Usuario.name, schema: UsuarioSchema }]),
+  ],
+  providers: [UsuariosService],
+  exports: [UsuariosService],
+})
+export class UsuariosModule {}
+</file>
+
+<file path="src/usuarios/usuarios.service.ts">
+// Este servicio es el único que toca MongoDB directamente.
+// El AuthService lo usa para buscar y crear usuarios.
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Usuario, UsuarioDocument } from './schemas/usuario.schema';
+
+@Injectable()
+export class UsuariosService {
+
+  constructor(
+    @InjectModel(Usuario.name) private usuarioModel: Model<UsuarioDocument>
+  ) {}
+
+  async buscarPorCorreo(correo: string) {
+    return this.usuarioModel.findOne({ correo: correo.toLowerCase() });
+  }
+
+  async buscarPorNombreUsuario(nombreUsuario: string) {
+    return this.usuarioModel.findOne({ nombreUsuario });
+  }
+
+  async buscarPorId(id: string) {
+    return this.usuarioModel.findById(id);
+  }
+
+  async crear(datos: Partial<Usuario>) {
+    const nuevo = new this.usuarioModel(datos);
+    return nuevo.save();
+  }
+}
+</file>
+
+<file path="test/app.e2e-spec.ts">
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { App } from 'supertest/types';
+import { AppModule } from './../src/app.module';
+
+describe('AppController (e2e)', () => {
+  let app: INestApplication<App>;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  it('/ (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/')
+      .expect(200)
+      .expect('Hello World!');
+  });
+
+  afterEach(async () => {
+    await app.close();
+  });
+});
+</file>
+
+<file path="test/jest-e2e.json">
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  }
+}
+</file>
+
+<file path="tsconfig.build.json">
+{
+  "extends": "./tsconfig.json",
+  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+}
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strictPropertyInitialization": false,
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false
+  }
+}
+</file>
+
+</files>

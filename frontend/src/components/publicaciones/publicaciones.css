@@ -1,0 +1,74 @@
+.pub-main {
+  max-width: 680px;
+}
+
+.pub-titulo {
+  font-size: 1.3rem;
+  font-weight: 800;
+  background: linear-gradient(to right, #06b6d4, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Selector de imagen en el formulario */
+.btn-imagen-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border: 1px dashed var(--app-border);
+  border-radius: 8px;
+  color: var(--app-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-imagen-label:hover {
+  border-color: var(--app-cyan);
+  color: var(--app-cyan);
+}
+
+/* Botones de ordenamiento */
+.btn-group-orden {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+}
+
+.btn-orden {
+  background: transparent;
+  border: none;
+  color: var(--app-text-muted);
+  border-radius: 7px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-orden.activo {
+  background: var(--app-primary);
+  color: white;
+}
+
+/* Botón cargar más */
+.btn-cargar-mas {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  border-radius: 20px;
+  padding: 0.5rem 2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cargar-mas:hover {
+  border-color: var(--app-cyan);
+  color: var(--app-cyan);
+}

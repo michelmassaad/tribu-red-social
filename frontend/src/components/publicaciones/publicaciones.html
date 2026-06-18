@@ -1,1 +1,101 @@
-<p>publicaciones works!</p>
+<main class="container pub-main py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="pub-titulo mb-0">Feed</h2>
+    <button class="btn btn-ui-primary btn-sm" (click)="mostrarFormulario.set(!mostrarFormulario())">
+      <i class="bi" [class.bi-plus-lg]="!mostrarFormulario()" [class.bi-x-lg]="mostrarFormulario()"></i>
+      {{ mostrarFormulario() ? 'Cancelar' : 'Nueva publicación' }}
+    </button>
+  </div>
+
+  @if (mostrarFormulario()) {
+    <div class="card-ui p-4 mb-4">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-pencil-square me-2"></i>Crear publicación
+      </h6>
+
+      <form [formGroup]="crearForm" (ngSubmit)="onSubmit()">
+
+        <div class="mb-3">
+          <input type="text" formControlName="titulo" class="form-control form-control-ui"
+                 [class.is-invalid]="crearForm.get('titulo')?.invalid && crearForm.get('titulo')?.touched"
+                 placeholder="Título" />
+          <div class="invalid-feedback">El título es requerido (Mínimo 3 caracteres).</div>
+        </div>
+
+        <div class="mb-3">
+          <textarea formControlName="descripcion" class="form-control form-control-ui"
+                    [class.is-invalid]="crearForm.get('descripcion')?.invalid && crearForm.get('descripcion')?.touched"
+                    placeholder="¿Qué querés compartir?" rows="3" style="resize: none;"></textarea>
+          <div class="invalid-feedback">El cuerpo de la publicación es requerido (Mínimo 10 caracteres).</div>
+        </div>
+
+        <div class="d-flex align-items-center justify-content-between gap-3">
+          <label class="btn-imagen-label" style="cursor: pointer;">
+            <i class="bi bi-image me-1"></i>
+            {{ nombreImagen() || 'Adjuntar imagen' }}
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" hidden />
+          </label>
+
+          <button type="submit" class="btn btn-ui-primary btn-sm" [disabled]="crearForm.invalid || publicando()">
+            @if (publicando()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Publicando...
+            } @else {
+              <i class="bi bi-send-fill me-1"></i> Publicar
+            }
+          </button>
+        </div>
+
+        @if (errorPublicacion()) {
+          <p class="text-danger small mt-2 mb-0 fw-medium">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ errorPublicacion() }}
+          </p>
+        }
+      </form>
+    </div>
+  }
+
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="btn-group-orden">
+      <button class="btn-orden" [class.activo]="ordenamiento() === 'fecha'" (click)="cambiarOrden('fecha')">
+        <i class="bi bi-clock me-1"></i>Recientes
+      </button>
+      <button class="btn-orden" [class.activo]="ordenamiento() === 'likes'" (click)="cambiarOrden('likes')">
+        <i class="bi bi-heart me-1"></i>Más gustados
+      </button>
+    </div>
+    <small class="text-muted fw-semibold">{{ total() }} publicaciones</small>
+  </div>
+
+  @if (loading() && publicaciones().length === 0) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary mb-3"></div>
+      <p class="text-muted small">Cargando publicaciones del feed...</p>
+    </div>
+  } @else if (publicaciones().length === 0) {
+    <div class="card-ui text-center py-5">
+      <i class="bi bi-layout-text-sidebar fs-1 text-muted d-block mb-2"></i>
+      <p class="text-muted mb-0 small">Todavía no hay publicaciones en el feed.</p>
+    </div>
+  } @else {
+    @for (pub of publicaciones(); track pub._id) {
+      <app-tarjeta-publicacion [publicacion]="pub" 
+                               (onToggleLike)="toggleLike($event)" 
+                               (onEliminar)="eliminar($event)">
+      </app-tarjeta-publicacion>
+    }
+
+    @if (hayMas()) {
+      <div class="text-center my-4">
+        <button class="btn-cargar-mas" (click)="cargarMas()" [disabled]="loadingMas()">
+          @if (loadingMas()) { 
+            <span class="spinner-border spinner-border-sm me-2"></span> Cargando...
+          } @else {
+            Ver más publicaciones
+          }
+        </button>
+      </div>
+    }
+  }
+
+</main>

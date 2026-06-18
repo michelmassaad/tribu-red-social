@@ -39,7 +39,7 @@ export class AuthService {
 
     if (archivo) {
       // archivo.buffer contiene la foto en RAM (gracias a memoryStorage en el controller)
-      const resultado = await this.cloudinaryService.subirImagen(archivo);
+      const resultado = await this.cloudinaryService.subirImagen(archivo, 'red-social/usuarios');
       fotoPerfil = resultado.url;       // URL pública de Cloudinary
       fotoPerfilPublicId = resultado.publicId;
     }
