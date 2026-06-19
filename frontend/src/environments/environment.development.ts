@@ -1,4 +1,5 @@
+// src/environments/environment.ts  ← producción
 export const environment = {
   production: true,
-  apiUrl: 'https://TU-BACKEND.onrender.com/api', // ← actualizá con tu URL de Render
+  apiUrl: 'https://michel-massaad-tp2-prog4-2026-c1.onrender.com/api'
 };
