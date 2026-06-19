@@ -57,35 +57,36 @@ export class PublicacionesService {
   // LISTAR PUBLICACIONES
   // ────────────────────────────────────────────
   async listar(offset = 0, limit = 10, ordenarPor = 'fecha', autorId?: string) {
+  const filtro: any = { eliminado: false };
+  if (autorId) filtro.autor = new Types.ObjectId(autorId);
 
-    // Filtro base: solo traer las que no están eliminadas
-    const filtro: any = { eliminado: false };
+  const total = await this.publicacionModel.countDocuments(filtro);
 
-    // Si nos pasan autorId, filtramos solo las de ese usuario
-    if (autorId) {
-      filtro.autor = new Types.ObjectId(autorId);
-    }
+  let publicaciones: any[];
 
-    // Traemos las publicaciones ordenadas por fecha (más reciente primero)
-    let todasLasPublicaciones = await this.publicacionModel
+  if (ordenarPor === 'likes') {
+    // Para likes necesitamos traer todo y ordenar en JS
+    // (MongoDB no puede ordenar por length de array directamente)
+    const todas = await this.publicacionModel
       .find(filtro)
       .sort({ createdAt: -1 })
       .populate('autor', 'nombre apellido nombreUsuario fotoPerfil')
       .lean();
-
-    // Si nos piden ordenar por likes, ordenamos por cantidad de corazones
-    if (ordenarPor === 'likes') {
-      todasLasPublicaciones.sort((a, b) => b.likes.length - a.likes.length);
-    }
-
-    // Guardamos el total antes de paginar
-    const total = todasLasPublicaciones.length;
-
-    // Aplicamos la paginación: skip(offset) y tomamos solo "limit" elementos
-    const publicaciones = todasLasPublicaciones.slice(offset, offset + limit);
-
-    return { datos: publicaciones, total, limit, offset };
+    todas.sort((a, b) => b.likes.length - a.likes.length);
+    publicaciones = todas.slice(offset, offset + limit);
+  } else {
+    // Para fecha usamos skip/limit directo en MongoDB — mucho más rápido
+    publicaciones = await this.publicacionModel
+      .find(filtro)
+      .sort({ createdAt: -1 })
+      .skip(offset)
+      .limit(limit)
+      .populate('autor', 'nombre apellido nombreUsuario fotoPerfil')
+      .lean();
   }
+
+  return { datos: publicaciones, total, limit, offset };
+}
 
   // ────────────────────────────────────────────
   // DAR LIKE
