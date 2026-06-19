@@ -15,6 +15,8 @@ export class AuthService {
   ) {}
 
   // ── REGISTRO ──────────────────────────────────────────────────────────────
+  // Solo crea el usuario. No genera token porque después el usuario
+  // va a la pantalla de login y se autentica ahí.
   async registro(dto: RegistroDto, archivo?: Express.Multer.File) {
 
     // 1. Verificar que el correo no esté ya registrado
@@ -38,9 +40,13 @@ export class AuthService {
     let fotoPerfilPublicId = '';
 
     if (archivo) {
-      // archivo.buffer contiene la foto en RAM (gracias a memoryStorage en el controller)
-      const resultado = await this.cloudinaryService.subirImagen(archivo, 'red-social/usuarios');
-      fotoPerfil = resultado.url;       // URL pública de Cloudinary
+      // ✅ Foto de perfil: recortamos a cuadrado 400x400 centrado en la cara
+      const resultado = await this.cloudinaryService.subirImagen(
+        archivo,
+        'red-social/usuarios',
+        [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+      );
+      fotoPerfil = resultado.url;
       fotoPerfilPublicId = resultado.publicId;
     }
 
@@ -59,7 +65,7 @@ export class AuthService {
       activo: true,
     });
 
-    // 6. Retornar sin exponer el password
+    // 6. Retornar confirmación sin exponer el password ni generar token
     const obj = usuario.toObject();
     const { password, ...usuarioSinPassword } = obj;
 
@@ -70,6 +76,7 @@ export class AuthService {
   }
 
   // ── LOGIN ─────────────────────────────────────────────────────────────────
+  // Autentica al usuario y genera el token JWT.
   async login(dto: LoginDto) {
 
     // 1. Buscar por correo O por nombreUsuario
@@ -89,21 +96,36 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // 4. Generar el token JWT
-    const token = this.jwtService.sign({
+    // 4. Retornar token y datos del usuario (sin password)
+    const obj = usuario.toObject();
+    const { password, ...usuarioSinPassword } = obj;
+
+    return {
+      token: this.generarToken(usuario),
+      usuario: usuarioSinPassword,
+    };
+  }
+
+  // ── OBTENER PERFIL ────────────────────────────────────────────────────────
+  // Para la ruta GET /api/auth/me.
+  // Angular la llama al arrancar para restaurar la sesión si la cookie sigue válida.
+  async obtenerPerfil(userId: string) {
+    const usuario = await this.usuariosService.buscarPorId(userId);
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    const { password, ...usuarioSinPassword } = usuario.toObject();
+    return usuarioSinPassword;
+  }
+
+  // ── HELPER PRIVADO ────────────────────────────────────────────────────────
+  // Centraliza la generación del token para no repetir el payload en cada método.
+  private generarToken(usuario: any): string {
+    return this.jwtService.sign({
       sub: usuario._id.toString(),
       correo: usuario.correo,
       nombreUsuario: usuario.nombreUsuario,
       perfil: usuario.perfil,
     });
-
-    // 5. Retornar token y datos del usuario (sin password)
-    const obj = usuario.toObject();
-    const { password, ...usuarioSinPassword } = obj;
-
-    return {
-      token,             // El frontend busca "token" (no "access_token")
-      usuario: usuarioSinPassword,
-    };
   }
 }

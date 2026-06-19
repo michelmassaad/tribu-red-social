@@ -53,11 +53,9 @@ src/app.service.ts
 src/auth/auth.controller.ts
 src/auth/auth.module.ts
 src/auth/auth.service.ts
-src/auth/decorators/public.decorator.ts
 src/auth/dto/login.dto.ts
 src/auth/dto/registro.dto.ts
-src/auth/guards/jwt-auth.guard.ts
-src/auth/strategies/jwt.strategy.ts
+src/auth/guards/auth.guard.ts
 src/cloudinary/cloudinary.module.ts
 src/cloudinary/cloudinary.service.ts
 src/main.ts
@@ -223,17 +221,15 @@ export default tseslint.config(
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/mongoose": "^11.0.4",
-    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "cloudinary": "^2.10.0",
+    "cookie-parser": "^1.4.7",
     "mongodb": "^7.3.0",
     "mongoose": "^9.7.0",
     "multer": "^2.2.0",
-    "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -244,11 +240,11 @@ export default tseslint.config(
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
     "@types/bcryptjs": "^2.4.6",
+    "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.1.0",
     "@types/node": "^24.0.0",
-    "@types/passport-jwt": "^4.0.1",
     "@types/supertest": "^7.0.0",
     "eslint": "^9.18.0",
     "globals": "^17.0.0",
@@ -460,18 +456,18 @@ export class AppService {
 
 <file path="src/auth/auth.controller.ts">
 import {
-  Controller, Post, Body, UploadedFile,
-  UseInterceptors, HttpCode, HttpStatus,
+  Controller, Post, Get, Body, UploadedFile,
+  UseInterceptors, UseGuards, Request,
+  HttpCode, HttpStatus, Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer'; // ← memoryStorage: la foto queda en RAM
+import { memoryStorage } from 'multer';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegistroDto } from './dto/registro.dto';
 import { LoginDto } from './dto/login.dto';
+import { AuthGuard } from './guards/auth.guard';
 
-// Multer con memoryStorage: la foto se guarda en RAM como Buffer.
-// Luego el AuthService la envía a Cloudinary desde esa RAM.
-// NO se guarda nada en disco del servidor.
 const multerOpciones = {
   storage: memoryStorage(),
   fileFilter: (req: any, file: any, cb: any) => {
@@ -481,31 +477,75 @@ const multerOpciones = {
       cb(new Error('Solo se permiten imágenes'), false);
     }
   },
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB máximo
+  limits: { fileSize: 5 * 1024 * 1024 },
 };
 
-@Controller('auth') // → /api/auth
+@Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  // POST /api/auth/registro
-  // Recibe FormData (campos de texto + imagen)
+  // ── REGISTRO ──────────────────────────────────────────────────────────────
+  // Sin guard — ruta pública.
+  // Sin cookie — el usuario va a hacer login después, ahí se genera el token.
+  // Devuelve directo lo que retorna el service.
   @Post('registro')
-  @HttpCode(HttpStatus.CREATED) // → HTTP 201
+  @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file', multerOpciones))
-  registro(
-    @Body() dto: RegistroDto,
+  async registro(
+    @Body() dto: RegistroDto, // DTO con validaciones
     @UploadedFile() archivo?: Express.Multer.File,
   ) {
     return this.authService.registro(dto, archivo);
   }
 
-  // POST /api/auth/login
-  // Recibe JSON con { identificador, password }
+  // ── LOGIN ─────────────────────────────────────────────────────────────────
+  // Sin guard — ruta pública.
+  // Acá sí se genera el token y se setea la cookie.
+  // @Res({ passthrough: true }) → NestJS sigue manejando la respuesta normalmente,
+  // solo lo usamos para acceder al objeto res y setear la cookie.
   @Post('login')
-  @HttpCode(HttpStatus.OK) // → HTTP 200
-  login(@Body() dto: LoginDto) {
-    return this.authService.login(dto);
+  @HttpCode(HttpStatus.OK)
+  async login(
+    @Body() dto: LoginDto, // DTO con validaciones 
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const resultado = await this.authService.login(dto);
+    this.setTokenCookie(res, resultado.token);
+    return { mensaje: 'Login exitoso', usuario: resultado.usuario };
+  }
+
+  // ── ME ────────────────────────────────────────────────────────────────────
+  // Protegida — el guard verifica la cookie.
+  // Angular la llama al arrancar para saber si la sesión sigue activa (F5).
+  // req.user.userId viene del payload que el guard puso en el request.
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async me(@Request() req: any) {
+    return this.authService.obtenerPerfil(req.user.userId);
+  }
+
+  // ── LOGOUT ───────────────────────────────────────────────────────────────
+  // Protegida — solo puede cerrar sesión alguien logueado.
+  // clearCookie() borra la cookie del browser, el próximo request va a tirar 401.
+  @Post('logout')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  cerrarSesion(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('access_token');
+    return { mensaje: 'Sesión cerrada correctamente' };
+  }
+
+  // ── HELPER PRIVADO ────────────────────────────────────────────────────────
+  // sameSite 'lax' en lugar de 'strict' (clase) → funciona en localhost cross-port
+  // secure false en dev porque no hay HTTPS local, true solo en producción
+  // maxAge 15 minutos sincronizado con el expiresIn del JWT
+  private setTokenCookie(res: Response, token: string) {
+    res.cookie('access_token', token, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env['NODE_ENV'] === 'production',
+      maxAge: 1000 * 60 * 15,
+    });
   }
 }
 </file>
@@ -513,36 +553,27 @@ export class AuthController {
 <file path="src/auth/auth.module.ts">
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport'; // ← Este registra las estrategias
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './strategies/jwt.strategy'; // ← Esta es la estrategia "jwt"
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsuariosModule } from '../usuarios/usuarios.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
     UsuariosModule,
     CloudinaryModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }), // ← registra Passport
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') || 'clave-fallback',
-        signOptions: { expiresIn: '15m' },
+      global: true,               // JwtService disponible en toda la app
+      useFactory: () => ({
+        secret: process.env['JWT_SECRET'], // Clave secreta para firmar los tokens
+        signOptions: { expiresIn: '15m' }, // Tokens expiran en 15 minutos
       }),
-      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,   // ← le dice a Passport que existe la estrategia "jwt"
-    JwtAuthGuard,
-  ],
-  exports: [AuthService, JwtAuthGuard, JwtModule],
+  providers: [AuthService, AuthGuard],
+  exports: [AuthService, AuthGuard, JwtModule], // Exportamos JwtModule para usar JwtService en otros módulos
 })
 export class AuthModule {}
 </file>
@@ -565,6 +596,8 @@ export class AuthService {
   ) {}
 
   // ── REGISTRO ──────────────────────────────────────────────────────────────
+  // Solo crea el usuario. No genera token porque después el usuario
+  // va a la pantalla de login y se autentica ahí.
   async registro(dto: RegistroDto, archivo?: Express.Multer.File) {
 
     // 1. Verificar que el correo no esté ya registrado
@@ -588,9 +621,13 @@ export class AuthService {
     let fotoPerfilPublicId = '';
 
     if (archivo) {
-      // archivo.buffer contiene la foto en RAM (gracias a memoryStorage en el controller)
-      const resultado = await this.cloudinaryService.subirImagen(archivo, 'red-social/usuarios');
-      fotoPerfil = resultado.url;       // URL pública de Cloudinary
+      // ✅ Foto de perfil: recortamos a cuadrado 400x400 centrado en la cara
+      const resultado = await this.cloudinaryService.subirImagen(
+        archivo,
+        'red-social/usuarios',
+        [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+      );
+      fotoPerfil = resultado.url;
       fotoPerfilPublicId = resultado.publicId;
     }
 
@@ -609,7 +646,7 @@ export class AuthService {
       activo: true,
     });
 
-    // 6. Retornar sin exponer el password
+    // 6. Retornar confirmación sin exponer el password ni generar token
     const obj = usuario.toObject();
     const { password, ...usuarioSinPassword } = obj;
 
@@ -620,6 +657,7 @@ export class AuthService {
   }
 
   // ── LOGIN ─────────────────────────────────────────────────────────────────
+  // Autentica al usuario y genera el token JWT.
   async login(dto: LoginDto) {
 
     // 1. Buscar por correo O por nombreUsuario
@@ -639,33 +677,39 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    // 4. Generar el token JWT
-    const token = this.jwtService.sign({
+    // 4. Retornar token y datos del usuario (sin password)
+    const obj = usuario.toObject();
+    const { password, ...usuarioSinPassword } = obj;
+
+    return {
+      token: this.generarToken(usuario),
+      usuario: usuarioSinPassword,
+    };
+  }
+
+  // ── OBTENER PERFIL ────────────────────────────────────────────────────────
+  // Para la ruta GET /api/auth/me.
+  // Angular la llama al arrancar para restaurar la sesión si la cookie sigue válida.
+  async obtenerPerfil(userId: string) {
+    const usuario = await this.usuariosService.buscarPorId(userId);
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    const { password, ...usuarioSinPassword } = usuario.toObject();
+    return usuarioSinPassword;
+  }
+
+  // ── HELPER PRIVADO ────────────────────────────────────────────────────────
+  // Centraliza la generación del token para no repetir el payload en cada método.
+  private generarToken(usuario: any): string {
+    return this.jwtService.sign({
       sub: usuario._id.toString(),
       correo: usuario.correo,
       nombreUsuario: usuario.nombreUsuario,
       perfil: usuario.perfil,
     });
-
-    // 5. Retornar token y datos del usuario (sin password)
-    const obj = usuario.toObject();
-    const { password, ...usuarioSinPassword } = obj;
-
-    return {
-      token,             // El frontend busca "token" (no "access_token")
-      usuario: usuarioSinPassword,
-    };
   }
 }
-</file>
-
-<file path="src/auth/decorators/public.decorator.ts">
-import { SetMetadata } from '@nestjs/common';
-
-// Cuando ponés @Public() arriba de una ruta,
-// le decís al guard que la deje pasar sin verificar el token
-export const IS_PUBLIC_KEY = 'isPublic';
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 </file>
 
 <file path="src/auth/dto/login.dto.ts">
@@ -728,67 +772,45 @@ export class RegistroDto {
 }
 </file>
 
-<file path="src/auth/guards/jwt-auth.guard.ts">
-import { ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+<file path="src/auth/guards/auth.guard.ts">
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class AuthGuard implements CanActivate {
 
-  constructor(private reflector: Reflector) {
-    super();
-  }
+  // Inyectamos JwtService para verificar el token
+  constructor(private readonly jwtService: JwtService) {}
 
-  canActivate(context: ExecutionContext) {
-    // Pregunta: ¿esta ruta tiene el decorador @Public()?
-    const esPublica = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+  // Método principal del guardia que se ejecuta para cada solicitud protegida
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest(); // Obtenemos el objeto de solicitud HTTP
+    const token = this.extractTokenFromCookie(request); // Extraemos el token de las cookies
 
-    // Si es pública, la dejamos pasar sin verificar
-    if (esPublica) return true;
+    if (!token) throw new UnauthorizedException(); // Si no hay token, lanzamos una excepción de no autorizado
 
-    // Si no es pública, verificamos el token normalmente
-    return super.canActivate(context);
-  }
-}
-</file>
-
-<file path="src/auth/strategies/jwt.strategy.ts">
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { UsuariosService } from '../../usuarios/usuarios.service';
-
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-
-  constructor(private usuariosService: UsuariosService) {
-    super({
-      // Busca el token en el header: Authorization: Bearer <token>
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'clave-fallback',
-    });
-  }
-
-  // NestJS llama a este método automáticamente si el token es válido.
-  // Lo que retornemos acá va a estar disponible como "req.user" en el controller.
-  async validate(payload: { sub: string; correo: string; perfil: string }) {
-    const usuario = await this.usuariosService.buscarPorId(payload.sub);
-
-    if (!usuario || !usuario.activo) {
-      throw new UnauthorizedException('Token inválido');
+    try {
+      // Verificamos el token y extraemos su payload
+      const payload = await this.jwtService.verifyAsync(token);
+      request['user'] = {
+        userId: payload['sub'],
+        correo: payload['correo'],
+        nombreUsuario: payload['nombreUsuario'],
+        perfil: payload['perfil'],
+      };
+    } catch {
+      throw new UnauthorizedException();
     }
+    return true;
+  }
 
-    return {
-      userId: payload.sub,
-      correo: payload.correo,
-      perfil: payload.perfil,
-    };
+  // Método auxiliar para extraer el token de las cookies de la solicitud
+  private extractTokenFromCookie(request: Request): string | undefined {
+    if (request.cookies && request.cookies['access_token']) {
+      return request.cookies['access_token'];
+    }
+    return undefined;
   }
 }
 </file>
@@ -823,21 +845,24 @@ export class CloudinaryService {
     });
   }
 
-  subirImagen(archivo: Express.Multer.File, carpeta: string): Promise<{ url: string; publicId: string }> {
-    // Cloudinary no acepta Buffer directamente, necesita un stream
+  // transformacion es opcional — cada llamador decide cómo procesar la imagen
+  subirImagen(
+    archivo: Express.Multer.File,
+    carpeta: string,
+    transformacion?: object[],
+  ): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          folder: carpeta, // Carpeta dentro de tu cuenta de Cloudinary
-          transformation: [
-            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
-          ],
+          folder: carpeta,
+          // Solo aplicamos transformación si el caller la pasa
+          ...(transformacion ? { transformation: transformacion } : {}),
         },
         (error, resultado) => {
           if (error) return reject(error);
           resolve({
-            url: resultado!.secure_url,    // URL pública HTTPS de la imagen
-            publicId: resultado!.public_id, // ID para borrarla después si hace falta
+            url: resultado!.secure_url,
+            publicId: resultado!.public_id,
           });
         },
       );
@@ -847,7 +872,6 @@ export class CloudinaryService {
     });
   }
 
-  // Útil en Sprint #4 cuando necesitemos reemplazar la foto de perfil
   async eliminarImagen(publicId: string): Promise<void> {
     await cloudinary.uploader.destroy(publicId);
   }
@@ -858,24 +882,22 @@ export class CloudinaryService {
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Permite que Angular (puerto 4200) hable con este servidor (3000)
+  // Necesario para que Angular (4200) envíe cookies a NestJS (3000)
   app.enableCors({
     origin: 'http://localhost:4200',
+    credentials: true,
   });
 
-  // Activa las validaciones de los DTOs en todos los endpoints.
-  // Si falta un campo requerido → responde automáticamente HTTP 400
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-
-  // Todas las rutas empiezan con /api → /api/auth/login, /api/auth/registro
+  app.use(cookieParser());
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT || 3000);
-  console.log(`Servidor en http://localhost:${process.env.PORT || 3000}/api`);
+  await app.listen(process.env['PORT'] ?? 3000);
 }
 bootstrap();
 </file>
@@ -905,7 +927,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { PublicacionesService } from './publicaciones.service';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 // Configuración de Multer — igual que en auth, guarda la foto en RAM
 const multerOpciones = {
@@ -918,7 +940,7 @@ const multerOpciones = {
 
 // @UseGuards(JwtAuthGuard) en la clase → protege TODAS las rutas de este controller
 @Controller('publicaciones')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard)
 export class PublicacionesController {
 
   constructor(private publicacionesService: PublicacionesService) { }
@@ -1018,7 +1040,7 @@ export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name) private publicacionModel: Model<PublicacionDocument>,
     private cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   // ────────────────────────────────────────────
   // CREAR PUBLICACIÓN
@@ -1029,7 +1051,13 @@ export class PublicacionesService {
     let imagenUrl = '';
     let imagenPublicId = '';
     if (archivo) {
-      const subida = await this.cloudinaryService.subirImagen(archivo, 'red-social/publicaciones');
+      // ✅ Sin transformación de recorte — la imagen se sube respetando su proporción original
+      // crop: 'limit' solo achica si supera 1200px de ancho, nunca recorta
+      const subida = await this.cloudinaryService.subirImagen(
+        archivo,
+        'red-social/publicaciones',
+        [{ width: 1200, crop: 'limit' }],
+      );
       imagenUrl = subida.url;
       imagenPublicId = subida.publicId;
     }
@@ -1108,7 +1136,7 @@ export class PublicacionesService {
       .findByIdAndUpdate(
         publicacionId,
         { $addToSet: { likes: new Types.ObjectId(usuarioId) } },
-        { new: true }, // new: true → devuelve el documento ya actualizado
+        { returnDocument: 'after' }, // ← antes: { new: true }
       )
       .populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
   }
@@ -1137,7 +1165,7 @@ export class PublicacionesService {
       .findByIdAndUpdate(
         publicacionId,
         { $pull: { likes: new Types.ObjectId(usuarioId) } },
-        { new: true },
+        { returnDocument: 'after' }, // ← antes: { new: true }
       )
       .populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
   }

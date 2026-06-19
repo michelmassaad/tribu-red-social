@@ -16,7 +16,7 @@ export class PublicacionesService {
   constructor(
     @InjectModel(Publicacion.name) private publicacionModel: Model<PublicacionDocument>,
     private cloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   // ────────────────────────────────────────────
   // CREAR PUBLICACIÓN
@@ -27,7 +27,13 @@ export class PublicacionesService {
     let imagenUrl = '';
     let imagenPublicId = '';
     if (archivo) {
-      const subida = await this.cloudinaryService.subirImagen(archivo, 'red-social/publicaciones');
+      // ✅ Sin transformación de recorte — la imagen se sube respetando su proporción original
+      // crop: 'limit' solo achica si supera 1200px de ancho, nunca recorta
+      const subida = await this.cloudinaryService.subirImagen(
+        archivo,
+        'red-social/publicaciones',
+        [{ width: 1200, crop: 'limit' }],
+      );
       imagenUrl = subida.url;
       imagenPublicId = subida.publicId;
     }
@@ -106,7 +112,7 @@ export class PublicacionesService {
       .findByIdAndUpdate(
         publicacionId,
         { $addToSet: { likes: new Types.ObjectId(usuarioId) } },
-        { new: true }, // new: true → devuelve el documento ya actualizado
+        { returnDocument: 'after' }, // ← antes: { new: true }
       )
       .populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
   }
@@ -135,7 +141,7 @@ export class PublicacionesService {
       .findByIdAndUpdate(
         publicacionId,
         { $pull: { likes: new Types.ObjectId(usuarioId) } },
-        { new: true },
+        { returnDocument: 'after' }, // ← antes: { new: true }
       )
       .populate('autor', 'nombre apellido nombreUsuario fotoPerfil');
   }

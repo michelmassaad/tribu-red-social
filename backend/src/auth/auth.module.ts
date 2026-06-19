@@ -1,34 +1,25 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport'; // ← Este registra las estrategias
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './strategies/jwt.strategy'; // ← Esta es la estrategia "jwt"
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { UsuariosModule } from '../usuarios/usuarios.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthGuard } from './guards/auth.guard';
 
 @Module({
   imports: [
     UsuariosModule,
     CloudinaryModule,
-    PassportModule.register({ defaultStrategy: 'jwt' }), // ← registra Passport
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_SECRET') || 'clave-fallback',
-        signOptions: { expiresIn: '15m' },
+      global: true,               // JwtService disponible en toda la app
+      useFactory: () => ({
+        secret: process.env['JWT_SECRET'], // Clave secreta para firmar los tokens
+        signOptions: { expiresIn: '15m' }, // Tokens expiran en 15 minutos
       }),
-      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,   // ← le dice a Passport que existe la estrategia "jwt"
-    JwtAuthGuard,
-  ],
-  exports: [AuthService, JwtAuthGuard, JwtModule],
+  providers: [AuthService, AuthGuard],
+  exports: [AuthService, AuthGuard, JwtModule], // Exportamos JwtModule para usar JwtService en otros módulos
 })
 export class AuthModule {}

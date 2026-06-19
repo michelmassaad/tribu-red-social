@@ -16,21 +16,24 @@ export class CloudinaryService {
     });
   }
 
-  subirImagen(archivo: Express.Multer.File, carpeta: string): Promise<{ url: string; publicId: string }> {
-    // Cloudinary no acepta Buffer directamente, necesita un stream
+  // transformacion es opcional — cada llamador decide cómo procesar la imagen
+  subirImagen(
+    archivo: Express.Multer.File,
+    carpeta: string,
+    transformacion?: object[],
+  ): Promise<{ url: string; publicId: string }> {
     return new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          folder: carpeta, // Carpeta dentro de tu cuenta de Cloudinary
-          transformation: [
-            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
-          ],
+          folder: carpeta,
+          // Solo aplicamos transformación si el caller la pasa
+          ...(transformacion ? { transformation: transformacion } : {}),
         },
         (error, resultado) => {
           if (error) return reject(error);
           resolve({
-            url: resultado!.secure_url,    // URL pública HTTPS de la imagen
-            publicId: resultado!.public_id, // ID para borrarla después si hace falta
+            url: resultado!.secure_url,
+            publicId: resultado!.public_id,
           });
         },
       );
@@ -40,7 +43,6 @@ export class CloudinaryService {
     });
   }
 
-  // Útil en Sprint #4 cuando necesitemos reemplazar la foto de perfil
   async eliminarImagen(publicId: string): Promise<void> {
     await cloudinary.uploader.destroy(publicId);
   }

@@ -5,7 +5,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { PublicacionesService } from './publicaciones.service';
 import { CrearPublicacionDto } from './dto/crear-publicacion.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 // Configuración de Multer — igual que en auth, guarda la foto en RAM
 const multerOpciones = {
@@ -18,7 +18,7 @@ const multerOpciones = {
 
 // @UseGuards(JwtAuthGuard) en la clase → protege TODAS las rutas de este controller
 @Controller('publicaciones')
-@UseGuards(JwtAuthGuard)
+@UseGuards(AuthGuard)
 export class PublicacionesController {
 
   constructor(private publicacionesService: PublicacionesService) { }
