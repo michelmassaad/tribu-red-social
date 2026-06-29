@@ -8,7 +8,9 @@ export interface Comentario {
     nombreUsuario: string;
     fotoPerfil: string;
   };
+  modificado: boolean;  // ← NUEVO — true cuando el usuario editó el comentario
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface Publicacion {
@@ -24,7 +26,7 @@ export interface Publicacion {
     fotoPerfil: string;
   };
   likes: string[];
-  comentarios?: Comentario[]; // ← opcional: Sprint 3 lo implementa en el backend
+  comentarios?: Comentario[];
   eliminado: boolean;
   createdAt: string;
   updatedAt: string;
@@ -32,6 +34,14 @@ export interface Publicacion {
 
 export interface PaginadoPublicaciones {
   datos: Publicacion[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+// NUEVO — interfaz para la respuesta paginada de comentarios
+export interface PaginadoComentarios {
+  datos: Comentario[];
   total: number;
   limit: number;
   offset: number;

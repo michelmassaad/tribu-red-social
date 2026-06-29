@@ -5,17 +5,21 @@ import { PublicacionesService } from './publicaciones.service';
 import { Publicacion, PublicacionSchema } from './schemas/publicacion.schema';
 import { AuthModule } from '../auth/auth.module';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+// ── Imports nuevos de comentarios ──────────────────────────────────────────
+import { ComentariosController } from './comentarios/comentarios.controller';
+import { ComentariosService } from './comentarios/comentarios.service';
+import { Comentario, ComentarioSchema } from './comentarios/schemas/comentario.schema';
 
 @Module({
   imports: [
-    // Registra el schema de Publicacion en este módulo
     MongooseModule.forFeature([
       { name: Publicacion.name, schema: PublicacionSchema },
+      { name: Comentario.name, schema: ComentarioSchema }, // ← nuevo
     ]),
-    AuthModule,       // Para poder usar JwtAuthGuard
-    CloudinaryModule, // Para subir imágenes
+    AuthModule,
+    CloudinaryModule,
   ],
-  controllers: [PublicacionesController],
-  providers: [PublicacionesService],
+  controllers: [PublicacionesController, ComentariosController], // ← nuevo
+  providers: [PublicacionesService, ComentariosService],         // ← nuevo
 })
 export class PublicacionesModule {}

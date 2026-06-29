@@ -19,6 +19,7 @@ export class MiPerfilComponent implements OnInit {
 
   cargando = signal(true);
   publicaciones = signal<Publicacion[]>([]);
+  subiendoFoto = signal(false);
 
   // El usuario ya está en memoria en el AuthService — no hace falta otra llamada al backend
   usuario = computed<Usuario | null>(() => this.auth.user());
@@ -53,6 +54,28 @@ export class MiPerfilComponent implements OnInit {
     }
   }
 
+  async onFotoSeleccionada(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const archivo = input.files[0];
+    this.subiendoFoto.set(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', archivo);
+
+      // Acá llamamos al método del AuthService. Asegurate de tenerlo creado
+      // para que golpee a tu endpoint de NestJS.
+      await this.auth.actualizarFotoPerfil(formData);
+
+    } catch (error) {
+      console.error('Error al subir la nueva foto:', error);
+    } finally {
+      this.subiendoFoto.set(false);
+      input.value = ''; // Limpiamos el input para permitir subir la misma foto si hubo un error
+    }
+  }
   // Mismo patrón de actualización optimista que en publicaciones.ts
   async toggleLike(id: string) {
     const pub = this.publicaciones().find(p => p._id === id);

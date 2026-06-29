@@ -79,10 +79,32 @@
 **Backend:**
 - `POST /api/publicaciones` — crea publicación con imagen opcional en Cloudinary
 - `GET /api/publicaciones` — lista publicaciones con parámetros `offset`, `limit`, `ordenarPor` (fecha/likes) y `autorId`
+- `GET /api/publicaciones/:id` — obtiene una publicación por ID
 - `DELETE /api/publicaciones/:id` — baja lógica, solo el autor o un administrador
 - `POST /api/publicaciones/:id/like` — agrega like (un like por usuario)
 - `DELETE /api/publicaciones/:id/like` — elimina like (solo si el usuario lo había dado)
 - Respuestas con status HTTP correctos: 201, 200, 400, 401, 403, 404, 409
+
+---
+
+### Sprint #3 ✅
+
+**Frontend:**
+- **Pantalla de carga** — al iniciar la app muestra un spinner y valida el token contra el backend. Si es válido redirige al feed, si no al login
+- **Página de publicación individual** (`/publicacion/:id`) — muestra la publicación completa con todos sus comentarios, formulario para comentar y opción de editar comentarios propios
+- **Comentarios en el feed** — cada tarjeta del feed permite ver, escribir y editar comentarios sin salir de la pantalla principal. Los comentarios se cargan al hacer click y se paginan con "Ver más"
+- **Edición de comentarios** — el autor puede editar su propio comentario. Los editados muestran el badge "editado"
+- **Timer de sesión** — al iniciar sesión arranca un contador de 10 minutos. Al llegar, aparece un modal avisando que quedan 5 minutos y preguntando si desea extender la sesión
+- **Cierre automático** — si el usuario no responde al modal en 5 minutos, la sesión se cierra automáticamente
+- **Interceptor de 401** — si cualquier request devuelve un error 401, Angular redirige automáticamente al login sin intervención del usuario
+- **Refrescar token** — si el usuario acepta extender la sesión, se genera un nuevo token con 15 minutos más de vigencia y el timer se reinicia
+
+**Backend:**
+- `POST /api/publicaciones/:id/comentarios` — agrega un comentario a una publicación con el usuario y la fecha
+- `PUT /api/publicaciones/:id/comentarios/:comentarioId` — edita el contenido de un comentario y marca `modificado: true`
+- `GET /api/publicaciones/:id/comentarios` — lista los comentarios de una publicación paginados, ordenados por más recientes primero
+- `POST /api/auth/autorizar` — valida si el token en la cookie es válido y devuelve los datos del usuario (401 si expiró)
+- `POST /api/auth/refrescar` — valida el token actual y genera uno nuevo con 15 minutos adicionales de vigencia
 
 ---
 
@@ -95,6 +117,9 @@ El sistema usa **JWT almacenado en cookies HttpOnly** en lugar de localStorage:
 - En producción usa `sameSite: 'none'` + `secure: true` para funcionar entre dominios distintos (Vercel → Render)
 - Los tokens expiran en **15 minutos**
 - Al recargar la página, el frontend llama a `/api/auth/me` para verificar si la cookie sigue vigente
+- A los **10 minutos** de sesión aparece un modal avisando que quedan 5 minutos con opción de extender
+- Si el usuario extiende, `/api/auth/refrescar` genera un nuevo token y reinicia el contador
+- Si no responde en 5 minutos, la sesión se cierra automáticamente
 
 ---
 
@@ -104,18 +129,35 @@ El sistema usa **JWT almacenado en cookies HttpOnly** en lugar de localStorage:
 tp2-red-social/
 ├── frontend/          ← Angular 21
 │   ├── src/
-│   │   ├── app/       ← rutas y configuración
-│   │   ├── components/← login, registro, publicaciones, mi-perfil, navbar, tarjeta
-│   │   ├── services/  ← auth, publicaciones
-│   │   ├── guards/    ← authGuard, guestGuard
-│   │   ├── models/    ← interfaces TypeScript
-│   │   └── environments/ ← URLs por entorno
+│   │   ├── app/           ← rutas, configuración e interceptores
+│   │   ├── components/
+│   │   │   ├── login/
+│   │   │   ├── registro/
+│   │   │   ├── navbar/
+│   │   │   ├── cargando/      ← pantalla de carga inicial (Sprint 3)
+│   │   │   ├── publicaciones/ ← feed con paginación y likes
+│   │   │   ├── publicacion/   ← publicación individual con comentarios (Sprint 3)
+│   │   │   ├── mi-perfil/
+│   │   │   └── tarjeta-publicacion/ ← componente reutilizable con comentarios
+│   │   ├── services/
+│   │   │   ├── auth.ts
+│   │   │   ├── publicaciones.ts
+│   │   │   └── comentarios.ts     ← nuevo en Sprint 3
+│   │   ├── guards/        ← authGuard, guestGuard
+│   │   ├── models/        ← interfaces TypeScript
+│   │   └── environments/  ← URLs por entorno
 │   └── vercel.json
 │
 └── backend/           ← NestJS 11
     └── src/
-        ├── auth/      ← controller, service, guard, DTOs
-        ├── usuarios/  ← schema, service
-        ├── publicaciones/ ← controller, service, schema, DTOs
-        └── cloudinary/← servicio de upload
+        ├── auth/          ← controller, service, guard, DTOs
+        ├── usuarios/      ← schema, service
+        ├── publicaciones/
+        │   ├── comentarios/   ← controller, service, schema, DTOs (Sprint 3)
+        │   ├── dto/
+        │   ├── schemas/
+        │   ├── publicaciones.controller.ts
+        │   ├── publicaciones.service.ts
+        │   └── publicaciones.module.ts
+        └── cloudinary/    ← servicio de upload
 ```

@@ -8,26 +8,46 @@
   } @else {
 
     <!-- ═══ TARJETA DE PERFIL ═══════════════════════════════════ -->
-    <div class="card-ui p-4 p-md-5 mb-4">
+<div class="card-ui p-4 p-md-5 mb-4">
 
-      <!-- Avatar + nombre + badge de rol -->
-      <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4 mb-4">
-        <img
-          [src]="usuario()?.fotoPerfil || avatarFallback()"
-          class="perfil-avatar"
-          [alt]="usuario()?.nombre"
-        />
-        <div class="text-center text-md-start">
-          <h2 class="fw-bold mb-1">{{ usuario()?.nombre }} {{ usuario()?.apellido }}</h2>
-          <p class="text-muted mb-2">&#64;{{ usuario()?.nombreUsuario }}</p>
-          <span class="badge-perfil" [class]="badgeColor()">
-            <i class="bi"
-              [class.bi-shield-fill-check]="usuario()?.perfil === 'administrador'"
-              [class.bi-person-fill]="usuario()?.perfil !== 'administrador'"></i>
-            {{ usuario()?.perfil === 'administrador' ? 'Administrador' : 'Usuario' }}
-          </span>
+  <!-- Avatar + nombre + badge — todo en una fila -->
+  <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-4 mb-4">
+
+    <!-- Avatar con botón de cámara superpuesto -->
+    <div class="position-relative" style="flex-shrink: 0;">
+
+      @if (subiendoFoto()) {
+        <div class="position-absolute top-0 start-0 w-100 h-100 rounded-circle
+                    d-flex align-items-center justify-content-center"
+             style="background: rgba(0,0,0,0.5); z-index: 10; border-radius: 50% !important;">
+          <div class="spinner-border text-white spinner-border-sm"></div>
         </div>
-      </div>
+      }
+
+      <img [src]="usuario()?.fotoPerfil || avatarFallback()"
+           class="perfil-avatar" [alt]="usuario()?.nombre" />
+
+      <button class="btn-camara" (click)="fileInput.click()" [disabled]="subiendoFoto()"
+              title="Cambiar foto de perfil">
+        <i class="bi bi-camera-fill"></i>
+      </button>
+
+      <input #fileInput type="file" accept="image/*" class="d-none"
+             (change)="onFotoSeleccionada($event)">
+    </div>
+
+    <!-- Nombre + username + badge -->
+    <div class="text-center text-md-start">
+      <h2 class="fw-bold mb-1">{{ usuario()?.nombre }} {{ usuario()?.apellido }}</h2>
+      <p class="text-muted mb-2">&#64;{{ usuario()?.nombreUsuario }}</p>
+      <span class="badge-perfil" [class]="badgeColor()">
+        <i class="bi"
+           [class.bi-shield-fill-check]="usuario()?.perfil === 'administrador'"
+           [class.bi-person-fill]="usuario()?.perfil !== 'administrador'"></i>
+        {{ usuario()?.perfil === 'administrador' ? 'Administrador' : 'Usuario' }}
+      </span>
+    </div>
+  </div>
 
       <!-- Descripción breve -->
       @if (usuario()?.descripcionBreve) {

@@ -1,7 +1,8 @@
 import {
   Controller, Post, Get, Body, UploadedFile,
   UseInterceptors, UseGuards, Request,
-  HttpCode, HttpStatus, Res,
+  HttpCode, HttpStatus, Res,Patch, Req, BadRequestException,
+    UnauthorizedException
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -67,6 +68,33 @@ export class AuthController {
     return this.authService.obtenerPerfil(req.user.userId);
   }
 
+  // ── AUTORIZAR ─────────────────────────────────────────────────────────────
+  // POST /api/auth/autorizar
+  // El guard verifica la cookie — si es inválida lanza 401 antes de llegar acá.
+  // Si llegó, el token es válido → devolvemos los datos del usuario.
+  @Post('autorizar')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async autorizar(@Request() req: any) {
+    return this.authService.obtenerPerfil(req.user.userId);
+  }
+
+  // ── REFRESCAR ─────────────────────────────────────────────────────────────
+  // POST /api/auth/refrescar
+  // Igual — el guard valida el token actual.
+  // Si es válido, generamos uno nuevo y lo ponemos en una nueva cookie.
+  @Post('refrescar')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async refrescar(
+    @Request() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const resultado = await this.authService.refrescar(req.user);
+    this.setTokenCookie(res, resultado.token); // cookie con 15 min nuevos
+    return { mensaje: 'Token refrescado', usuario: resultado.usuario };
+  }
+
   // ── LOGOUT ───────────────────────────────────────────────────────────────
   // Protegida — solo puede cerrar sesión alguien logueado.
   // clearCookie() borra la cookie del browser, el próximo request va a tirar 401.
@@ -77,6 +105,31 @@ export class AuthController {
     res.clearCookie('access_token');
     return { mensaje: 'Sesión cerrada correctamente' };
   }
+
+  @Patch('me/foto')
+    @UseGuards(AuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    async actualizarFoto(
+        @Req() req: any,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        if (!file) {
+            throw new BadRequestException('No se ha seleccionado ninguna imagen');
+        }
+
+        //  Extraemos el ID exactamente como lo llama tu AuthGuard
+        const userId = req.user?.userId;
+
+        //  Agregamos validación de seguridad extra. Si por algún motivo 
+        // el Guard no le pasa el ID al Request, lanzamos un 401 limpio en lugar 
+        // de un 500 que rompa el servidor.
+        if (!userId) {
+            throw new UnauthorizedException('No se pudo identificar al usuario desde el token');
+        }
+
+        //  Llamamos al servicio con el ID correcto
+        return await this.authService.actualizarFotoPerfil(userId, file);
+    }
 
   // ── HELPER PRIVADO ────────────────────────────────────────────────────────
   // sameSite 'lax' en lugar de 'strict' (clase) → funciona en localhost cross-port

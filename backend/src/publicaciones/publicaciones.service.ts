@@ -174,4 +174,16 @@ export class PublicacionesService {
 
     return { mensaje: 'Publicación eliminada correctamente' };
   }
+
+    // ── OBTENER UNA PUBLICACIÓN ───────────────────────────────────────────────
+  // Para la página de publicación individual — trae una sola por su ID
+  async obtenerUna(publicacionId: string) {
+    const publicacion = await this.publicacionModel
+      .findOne({ _id: publicacionId, eliminado: false })
+      .populate('autor', 'nombre apellido nombreUsuario fotoPerfil')
+      .lean();
+
+    if (!publicacion) throw new NotFoundException('Publicación no encontrada');
+    return publicacion;
+  }
 }

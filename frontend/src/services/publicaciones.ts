@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
+import { Publicacion } from '../models/publicacion';
 
 @Injectable({ providedIn: 'root' })
 export class PublicacionesService {
@@ -45,6 +46,12 @@ export class PublicacionesService {
   async eliminar(id: string) {
     return firstValueFrom(
       this.http.delete(`${this.apiUrl}/${id}`)
+    );
+  }
+  // Agregar este método al PublicacionesService existente
+  async obtenerPublicacion(id: string) {
+    return firstValueFrom(
+      this.http.get<Publicacion>(`${this.apiUrl}/${id}`)
     );
   }
 }

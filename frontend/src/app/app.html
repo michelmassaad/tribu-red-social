@@ -1,3 +1,31 @@
+@if (appCargando()) {
+<app-cargando></app-cargando>
+} @else {
 <app-navbar></app-navbar>
-
 <router-outlet></router-outlet>
+
+@if (auth.mostrarModalSesion()) {
+  <div class="modal-backdrop-ui"></div>
+
+  <div class="modal-ui">
+    <div class="modal-ui-content p-4">
+      <div class="text-center mb-3">
+        <i class="bi bi-clock-history text-warning" style="font-size: 2rem;"></i>
+      </div>
+      <h5 class="fw-bold text-center mb-2">Tu sesión está por vencer</h5>
+      <p class="text-muted text-center small mb-4">
+        Quedan <strong>5 minutos</strong> de sesión activa.
+        ¿Querés extenderla?
+      </p>
+      <div class="d-flex gap-2 justify-content-center">
+        <button class="btn btn-modal-cancelar" (click)="auth.cerrarSesion()">
+          Cerrar sesión
+        </button>
+        <button class="btn btn-modal-confirmar" (click)="auth.refrescarToken()">
+          Sí, extender
+        </button>
+      </div>
+    </div>
+  </div>
+}
+}

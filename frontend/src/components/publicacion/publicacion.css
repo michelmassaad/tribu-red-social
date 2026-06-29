@@ -1,0 +1,97 @@
+.pub-individual { max-width: 740px; }
+
+.btn-volver {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  border-radius: 20px;
+  padding: 0.4rem 1rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-volver:hover { border-color: var(--app-cyan); color: var(--app-cyan); }
+
+.pub-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--app-border);
+}
+
+.pub-imagen {
+  width: 100%; max-height: 600px;
+  object-fit: contain; border-radius: 12px;
+  border: 1px solid var(--app-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Comentarios ──────────────────────────────── */
+.comentarios-lista { display: flex; flex-direction: column; gap: 1rem; }
+
+.comentario-item { display: flex; gap: 0.75rem; align-items: flex-start; }
+
+.comentario-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%; object-fit: cover;
+  border: 1px solid var(--app-border); flex-shrink: 0;
+}
+
+.comentario-cuerpo {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--app-border);
+  border-radius: 10px; padding: 0.6rem 0.9rem; flex: 1;
+}
+
+.comentario-autor { font-size: 0.82rem; font-weight: 700; color: var(--app-text); }
+.comentario-fecha { font-size: 0.72rem; color: var(--app-text-muted); }
+.comentario-texto { font-size: 0.88rem; color: rgba(248,250,252,0.8); line-height: 1.5; margin: 0.25rem 0 0; }
+
+/* Badge "editado" — aparece cuando el comentario fue modificado */
+.badge-editado {
+  font-size: 0.68rem; color: var(--app-text-muted);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--app-border);
+  border-radius: 4px; padding: 0.1rem 0.4rem;
+}
+
+.btn-editar-comentario {
+  background: transparent; border: none;
+  color: var(--app-text-muted); padding: 0 0.25rem;
+  font-size: 0.82rem; cursor: pointer; transition: color 0.2s;
+}
+.btn-editar-comentario:hover { color: var(--app-cyan); }
+
+.btn-cargar-mas {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  border-radius: 20px; padding: 0.5rem 2rem;
+  font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+}
+.btn-cargar-mas:hover { border-color: var(--app-cyan); color: var(--app-cyan); }
+
+
+.btn-like {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  border-radius: 20px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-like:hover {
+  border-color: #f43f5e;
+  color: #f43f5e;
+}
+
+.btn-like.activo {
+  border-color: #f43f5e;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.08);
+}

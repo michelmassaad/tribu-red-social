@@ -51,6 +51,12 @@ export class PublicacionesController {
     );
   }
 
+  // GET /api/publicaciones/:id — obtener una publicación por ID
+  @Get(':id')
+  obtenerUna(@Param('id') id: string) {
+    return this.publicacionesService.obtenerUna(id);
+  }
+
   // POST /api/publicaciones/:id/like
   @Post(':id/like')
   darLike(@Param('id') id: string, @Request() req: any) {

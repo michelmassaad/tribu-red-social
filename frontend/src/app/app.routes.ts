@@ -3,7 +3,14 @@ import { authGuard } from '../guards/auth';
 import { guestGuard } from '../guards/guest';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'publicaciones', pathMatch: 'full' },
+  // { path: '', redirectTo: 'cargando', pathMatch: 'full' },
+
+  // Sin guard porque tiene que ser accesible sin importar el estado de sesión
+  {
+    path: 'cargando',
+    loadComponent: () =>
+      import('../components/pantalla-carga/pantalla-carga').then(m => m.PantallaCargaComponent),
+  },
 
   // guestGuard → si ya estás logueado, te redirige a publicaciones
   {
@@ -25,11 +32,17 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'publicacion/:id',
+    loadComponent: () =>
+      import('../components/publicacion/publicacion').then(m => m.PublicacionComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'mi-perfil',
     loadComponent: () =>
       import('../components/mi-perfil/mi-perfil').then(m => m.MiPerfilComponent),
     canActivate: [authGuard],
   },
 
-  { path: '**', redirectTo: 'publicaciones' },
+  { path: '**', redirectTo: 'cargando' },
 ];

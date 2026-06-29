@@ -118,6 +118,69 @@ export class AuthService {
     return usuarioSinPassword;
   }
 
+  // ── REFRESCAR TOKEN ───────────────────────────────────────────────────────
+  // Crea un nuevo JWT con los mismos datos del usuario y 15 min nuevos.
+  // El usuario sigue siendo el mismo — solo se extiende el tiempo de validez.
+  async refrescar(usuarioPayload: any) {
+    // Buscamos los datos frescos del usuario desde la DB
+    const usuario = await this.usuariosService.buscarPorId(usuarioPayload.userId);
+    if (!usuario || !usuario.activo) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    // generarToken() usa el helper privado que ya tenías — mismo payload, nuevo exp
+    const nuevoToken = this.generarToken(usuario);
+    const { password, ...usuarioSinPassword } = usuario.toObject();
+    return { token: nuevoToken, usuario: usuarioSinPassword };
+  }
+
+  // ── ACTUALIZAR PERFIL ───────────────────────────────────────────────────────
+
+  async actualizarFotoPerfil(userId: string, archivo: Express.Multer.File) {
+        //  Buscamos al usuario para ver si tiene una foto vieja
+        const usuarioActual = await this.usuariosService.buscarPorId(userId);
+        if (!usuarioActual) {
+            throw new UnauthorizedException('Usuario no encontrado');
+        }
+
+        //  Subimos la nueva foto a Cloudinary 
+        const resultado = await this.cloudinaryService.subirImagen(
+            archivo,
+            'red-social/usuarios',
+            [{ width: 400, height: 400, crop: 'fill', gravity: 'face' }],
+        );
+
+        //  Borramos la foto anterior de Cloudinary si existía un publicId
+        if (usuarioActual.fotoPerfilPublicId) {
+            try {
+                await this.cloudinaryService.eliminarImagen(usuarioActual.fotoPerfilPublicId);
+            } catch (error) {
+                console.warn(`No se pudo borrar la foto anterior (ID: ${usuarioActual.fotoPerfilPublicId}) en Cloudinary:`, error);
+                // No lanzamos excepción porque no queremos frenar el flujo si falla el borrado
+            }
+        }
+
+        // Actualizamos el registro en la base de datos a través de usuariosService
+        const usuarioActualizado = await this.usuariosService.actualizarCampos(userId, {
+            fotoPerfil: resultado.url,
+            fotoPerfilPublicId: resultado.publicId
+        });
+
+        if (!usuarioActualizado) {
+            throw new UnauthorizedException('No se pudo actualizar, usuario no encontrado');
+        }
+        // ---------------------------------
+
+        // Retornamos el usuario actualizado sin exponer la contraseña
+        const obj = usuarioActualizado.toObject();
+        const { password, ...usuarioSinPassword } = obj;
+
+        return {
+            mensaje: 'Foto de perfil actualizada exitosamente',
+            usuario: usuarioSinPassword,
+        };
+    }
+
+
   // ── HELPER PRIVADO ────────────────────────────────────────────────────────
   // Centraliza la generación del token para no repetir el payload en cada método.
   private generarToken(usuario: any): string {
@@ -128,4 +191,6 @@ export class AuthService {
       perfil: usuario.perfil,
     });
   }
+
+  
 }

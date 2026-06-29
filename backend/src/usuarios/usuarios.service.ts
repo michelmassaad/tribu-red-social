@@ -28,4 +28,12 @@ export class UsuariosService {
     const nuevo = new this.usuarioModel(datos);
     return nuevo.save();
   }
+
+  async actualizarCampos(id: string, campos: Partial<Usuario>) {
+        return await this.usuarioModel.findByIdAndUpdate(
+            id,
+            { $set: campos },
+            { new: true }, // Esto hace que retorne el usuario ya modificado y no el viejo
+        );
+    }
 }

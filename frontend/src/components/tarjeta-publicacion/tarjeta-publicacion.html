@@ -1,18 +1,13 @@
 <div class="card-ui tarjeta">
 
-  <!-- Cabecera: avatar + nombre del autor + fecha -->
   <div class="tarjeta-cabecera">
-    <img
-      class="tarjeta-avatar"
+    <img class="tarjeta-avatar"
       [src]="publicacion().autor.fotoPerfil ||
         'https://ui-avatars.com/api/?name=' + publicacion().autor.nombre +
         '&background=6366f1&color=fff&size=40'"
-      [alt]="publicacion().autor.nombreUsuario"
-    />
+      [alt]="publicacion().autor.nombreUsuario" />
     <div>
-      <p class="tarjeta-autor">
-        {{ publicacion().autor.nombre }} {{ publicacion().autor.apellido }}
-      </p>
+      <p class="tarjeta-autor">{{ publicacion().autor.nombre }} {{ publicacion().autor.apellido }}</p>
       <p class="tarjeta-fecha">
         &#64;{{ publicacion().autor.nombreUsuario }} ·
         {{ publicacion().createdAt | date:'dd/MM/yy HH:mm' }}
@@ -20,32 +15,29 @@
     </div>
   </div>
 
-  <!-- Contenido -->
-  <h5 class="tarjeta-titulo">{{ publicacion().titulo }}</h5>
+  <h5 class="tarjeta-titulo">
+    <a [routerLink]="['/publicacion', publicacion()._id]"
+       class="text-decoration-none text-white">
+      {{ publicacion().titulo }}
+    </a>
+  </h5>
   <p class="tarjeta-descripcion">{{ publicacion().descripcion }}</p>
 
-  <!-- Imagen (si tiene) -->
   @if (publicacion().imagenUrl) {
-    <img
-      class="tarjeta-imagen"
-      [src]="publicacion().imagenUrl"
-      [alt]="publicacion().titulo"
-      loading="lazy"
-    />
+    <img class="tarjeta-imagen" [src]="publicacion().imagenUrl"
+         [alt]="publicacion().titulo" loading="lazy" />
   }
 
-  <!-- Botones de acción -->
+  <!-- Acciones -->
   <div class="tarjeta-acciones">
-
     <button class="btn-like" [class.activo]="yaLeDiLike()" (click)="clickLike()">
       <i class="bi" [class.bi-heart-fill]="yaLeDiLike()" [class.bi-heart]="!yaLeDiLike()"></i>
       {{ publicacion().likes.length }}
     </button>
 
-    <!-- Botón de comentarios — muestra el conteo y hace toggle -->
     <button class="btn-comentarios" [class.activo]="mostrarComentarios()" (click)="toggleComentarios()">
       <i class="bi bi-chat"></i>
-      {{ cantidadComentarios() }}
+      {{ totalComentarios() }}
     </button>
 
     @if (puedoEliminar()) {
@@ -53,35 +45,97 @@
         <i class="bi bi-trash3"></i> Eliminar
       </button>
     }
-
   </div>
 
-  <!-- Sección de comentarios (solo lectura — Sprint 3 agrega el formulario) -->
+  <!-- Sección de comentarios — se carga al hacer click -->
   @if (mostrarComentarios()) {
     <div class="comentarios-seccion">
 
-      @if (cantidadComentarios() === 0) {
+      <!-- Formulario nuevo comentario -->
+      <div class="comentario-form mb-3">
+        <input type="text" class="form-control form-control-ui"
+               placeholder="Escribí un comentario..."
+               [value]="nuevoComentario()"
+               (input)="nuevoComentario.set($any($event.target).value)"
+               (keydown.enter)="enviarComentario()" />
+        <button class="btn-enviar-comentario"
+                [disabled]="!nuevoComentario().trim() || enviando()"
+                (click)="enviarComentario()">
+          @if (enviando()) {
+            <span class="spinner-border spinner-border-sm"></span>
+          } @else {
+            <i class="bi bi-send-fill"></i>
+          }
+        </button>
+      </div>
+
+      <!-- Lista de comentarios -->
+      @if (cargandoComentarios()) {
+        <div class="text-center py-2">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+        </div>
+      } @else if (comentarios().length === 0) {
         <p class="sin-comentarios">
-          <i class="bi bi-chat-square me-1"></i>
-          Todavía no hay comentarios.
+          <i class="bi bi-chat-square me-1"></i>Todavía no hay comentarios.
         </p>
       } @else {
         <div class="comentarios-lista">
-          @for (c of publicacion().comentarios; track c._id) {
+          @for (c of comentarios(); track c._id) {
             <div class="comentario-item">
-              <img
-                class="comentario-avatar"
-                [src]="c.autor.fotoPerfil || 'https://ui-avatars.com/api/?name=' + c.autor.nombre + '&background=6366f1&color=fff&size=28'"
-                [alt]="c.autor.nombreUsuario"
-              />
-              <div class="comentario-cuerpo">
-                <span class="comentario-autor">{{ c.autor.nombre }} {{ c.autor.apellido }}</span>
-                <span class="comentario-fecha ms-2">{{ c.createdAt | date:'dd/MM HH:mm' }}</span>
-                <p class="comentario-texto">{{ c.contenido }}</p>
+              <img class="comentario-avatar"
+                [src]="c.autor.fotoPerfil ||
+                  'https://ui-avatars.com/api/?name=' + c.autor.nombre +
+                  '&background=6366f1&color=fff&size=28'"
+                [alt]="c.autor.nombreUsuario" />
+              <div class="comentario-cuerpo flex-grow-1">
+                <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                  <span class="comentario-autor">{{ c.autor.nombre }} {{ c.autor.apellido }}</span>
+                  <span class="comentario-fecha">{{ c.createdAt | date:'dd/MM HH:mm' }}</span>
+                  @if (c.modificado) {
+                    <span class="badge-editado">editado</span>
+                  }
+                  @if (puedoEditar(c.autor._id) && editandoId() !== c._id) {
+                    <button class="btn-editar-comentario ms-auto" (click)="iniciarEdicion(c)">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                  }
+                </div>
+
+                @if (editandoId() === c._id) {
+                  <input type="text" class="form-control form-control-ui mb-2"
+                         [value]="textoEdicion()"
+                         (input)="textoEdicion.set($any($event.target).value)" />
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-ui-primary btn-sm"
+                            [disabled]="!textoEdicion().trim() || guardando()"
+                            (click)="guardarEdicion(c._id)">
+                      @if (guardando()) {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                      }
+                      Guardar
+                    </button>
+                    <button class="btn btn-modal-cancelar btn-sm"
+                            (click)="cancelarEdicion()">Cancelar</button>
+                  </div>
+                } @else {
+                  <p class="comentario-texto mb-0">{{ c.contenido }}</p>
+                }
               </div>
             </div>
           }
         </div>
+
+        @if (hayMas()) {
+          <div class="text-center mt-4">
+          <button class="btn-cargar-mas" (click)="cargarMas()"
+                  [disabled]="cargandoMas()">
+            @if (cargandoMas()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Ver más comentarios
+          </button>
+          </div>
+        }
       }
 
     </div>

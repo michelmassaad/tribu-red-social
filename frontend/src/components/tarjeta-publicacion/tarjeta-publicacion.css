@@ -197,3 +197,71 @@
   from { opacity: 0; transform: translateY(-4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+
+
+.comentario-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-enviar-comentario {
+  background: var(--app-primary);
+  border: none;
+  color: white;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-enviar-comentario:hover:not(:disabled) { filter: brightness(1.15); }
+.btn-enviar-comentario:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.badge-editado {
+  font-size: 0.68rem;
+  color: var(--app-text-muted);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--app-border);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+}
+
+.btn-editar-comentario {
+  background: transparent;
+  border: none;
+  color: var(--app-text-muted);
+  padding: 0 0.25rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.btn-editar-comentario:hover { color: var(--app-cyan); }
+
+.btn-like:hover {
+  border-color: #f43f5e;
+  color: #f43f5e;
+}
+
+.btn-like.activo {
+  border-color: #f43f5e;
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.1);
+}
+
+
+.btn-cargar-mas {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  color: var(--app-text-muted);
+  border-radius: 20px; padding: 0.5rem 2rem;
+  font-size: 0.9rem; cursor: pointer; transition: all 0.2s;
+}
+.btn-cargar-mas:hover { border-color: var(--app-cyan); color: var(--app-cyan); }
