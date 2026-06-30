@@ -1,0 +1,191 @@
+<div class="container py-4" style="max-width: 900px;">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="pub-titulo mb-0">
+      <i class="bi bi-people me-2"></i>Gestión de Usuarios
+    </h2>
+    <button class="btn btn-ui-primary btn-sm"
+            (click)="mostrarFormulario.set(!mostrarFormulario())">
+      <i class="bi" [class.bi-plus-lg]="!mostrarFormulario()" [class.bi-x-lg]="mostrarFormulario()"></i>
+      {{ mostrarFormulario() ? 'Cancelar' : 'Nuevo usuario' }}
+    </button>
+  </div>
+
+  <!-- Formulario de creación — se cierra al hacer click fuera -->
+  @if (mostrarFormulario()) {
+    <div class="card-ui p-4 mb-4" (appClickFuera)="cerrarFormulario()">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-person-plus me-2"></i>Crear nuevo usuario
+      </h6>
+
+      <form [formGroup]="crearForm" (ngSubmit)="onSubmit()">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Nombre</label>
+            <!-- appAutoFocus → el cursor aparece acá automáticamente -->
+            <input appAutoFocus type="text" formControlName="nombre"
+                   class="form-control form-control-ui" placeholder="Juan"
+                   [class.is-invalid]="crearForm.get('nombre')?.invalid&& crearForm.get('nombre')?.touched">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Apellido</label>
+            <input type="text" formControlName="apellido"
+                   class="form-control form-control-ui" placeholder="Perez"
+                   [class.is-invalid]="crearForm.get('apellido')?.invalid&& crearForm.get('apellido')?.touched">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Correo</label>
+            <input type="email" formControlName="correo"
+                   class="form-control form-control-ui" placeholder="juan@mail.com"
+                   [class.is-invalid]="crearForm.get('correo')?.invalid&& crearForm.get('correo')?.touched">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Nombre de usuario</label>
+            <input type="text" formControlName="nombreUsuario"
+                   class="form-control form-control-ui" placeholder="juanperez"
+                   [class.is-invalid]="crearForm.get('nombreUsuario')?.invalid&& crearForm.get('nombreUsuario')?.touched">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Contraseña</label>
+            <input type="password" formControlName="password"
+                   class="form-control form-control-ui" placeholder="••••••••"
+                   [class.is-invalid]="crearForm.get('password')?.invalid&& crearForm.get('password')?.touched">
+            @if (crearForm.get('password')?.invalid && crearForm.get('password')?.touched) {
+              <small class="text-danger">Mínimo 8 caracteres, una mayúscula y un número.</small>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Repetir contraseña</label>
+            <input type="password" formControlName="repetirPassword"
+                   class="form-control form-control-ui" placeholder="••••••••"
+                   [class.is-invalid]="crearForm.get('repetirPassword')?.touched&& crearForm.hasError('noCoincide')">
+            @if (crearForm.hasError('noCoincide') && crearForm.get('repetirPassword')?.touched) {
+              <small class="text-danger">Las contraseñas no coinciden.</small>
+            }
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Fecha de nacimiento</label>
+            <input type="date" formControlName="fechaNacimiento"
+                   class="form-control form-control-ui">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label text-secondary small fw-semibold">Perfil</label>
+            <div class="d-flex gap-4 mt-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" formControlName="perfil"
+                       value="usuario" id="rolUsuario">
+                <label class="form-check-label text-light small" for="rolUsuario">Usuario</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" formControlName="perfil"
+                       value="administrador" id="rolAdmin">
+                <label class="form-check-label text-light small" for="rolAdmin">Administrador</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label text-secondary small fw-semibold">Descripción breve (opcional)</label>
+            <textarea formControlName="descripcionBreve"
+                      class="form-control form-control-ui" rows="2" style="resize: none;"></textarea>
+          </div>
+        </div>
+
+        @if (errorMensaje()) {
+          <div class="alert alert-ui-danger small py-2 mt-3 mb-0">{{ errorMensaje() }}</div>
+        }
+
+        <div class="d-flex justify-content-end mt-3">
+          <button type="submit" class="btn btn-ui-primary"
+                  [disabled]="crearForm.invalid || guardando()">
+            @if (guardando()) {
+              <span class="spinner-border spinner-border-sm me-1"></span> Creando...
+            } @else {
+              <i class="bi bi-person-check me-1"></i> Crear usuario
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  @if (exitoMensaje()) {
+    <div class="alert alert-ui-success small py-2 mb-3">
+      <i class="bi bi-check-circle me-1"></i>{{ exitoMensaje() }}
+    </div>
+  }
+
+  <!-- Tabla de usuarios -->
+  @if (cargando()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+    </div>
+  } @else {
+    <div class="card-ui">
+      <div class="table-responsive">
+        <table class="table table-dark table-borderless mb-0">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--app-border);">
+              <th class="text-muted small fw-semibold">Usuario</th>
+              <th class="text-muted small fw-semibold">Correo</th>
+              <th class="text-muted small fw-semibold">Perfil</th>
+              <th class="text-muted small fw-semibold">Alta</th>
+              <th class="text-muted small fw-semibold">Estado</th>
+              <th class="text-muted small fw-semibold">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usuarios(); track u._id) {
+              <!-- appHighlight resalta la fila al hover -->
+              <tr appHighlight style="border-bottom: 1px solid rgba(255,255,255,0.04);">
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <img [src]="u.fotoPerfil || 'https://ui-avatars.com/api/?name=' + u.nombre + '&background=6366f1&color=fff&size=32'"
+                         class="rounded-circle" width="32" height="32" style="object-fit: cover;"/>
+                    <div>
+                      <!-- primeraMayuscula: capitaliza nombre y apellido -->
+                      <p class="mb-0 small fw-semibold">{{ u.nombre + ' ' + u.apellido | primeraMayuscula }}</p>
+                      <p class="mb-0 text-muted" style="font-size: 0.72rem;">&#64;{{ u.nombreUsuario }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td class="small text-muted align-middle">{{ u.correo }}</td>
+                <td class="align-middle">
+                  <span class="badge"
+                        [style.background]="u.perfil === 'administrador' ? 'rgba(245,158,11,0.15)' : 'rgba(99,102,241,0.15)'"
+                        [style.color]="u.perfil === 'administrador' ? '#fcd34d' : '#a5b4fc'"
+                        [style.border]="u.perfil === 'administrador' ? '1px solid rgba(245,158,11,0.3)' : '1px solid rgba(99,102,241,0.3)'">
+                    {{ u.perfil }}
+                  </span>
+                </td>
+                <td class="small text-muted align-middle">
+                  <!-- fechaRelativa: "hace 3 días" en lugar de la fecha completa -->
+                  {{ u.createdAt | fechaRelativa }}
+                </td>
+                <td class="align-middle">
+                  <span class="badge"
+                        [style.background]="u.activo ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)'"
+                        [style.color]="u.activo ? '#6ee7b7' : '#fca5a5'"
+                        [style.border]="u.activo ? '1px solid rgba(16,185,129,0.3)' : '1px solid rgba(244,63,94,0.3)'">
+                    {{ u.activo ? 'Activo' : 'Deshabilitado' }}
+                  </span>
+                </td>
+                <td class="align-middle">
+                  @if (u.activo) {
+                    <button class="btn btn-sm btn-outline-danger" (click)="deshabilitar(u._id)">
+                      <i class="bi bi-person-x"></i>
+                    </button>
+                  } @else {
+                    <button class="btn btn-sm btn-outline-success" (click)="habilitar(u._id)">
+                      <i class="bi bi-person-check"></i>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>

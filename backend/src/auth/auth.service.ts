@@ -89,7 +89,9 @@ export class AuthService {
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
-
+    if (!usuario.activo) {
+      throw new UnauthorizedException('Usuario deshabilitado');
+    }
     // 3. Comparar la contraseña recibida con el hash guardado
     const passwordValida = await bcrypt.compare(dto.password, usuario.password);
     if (!passwordValida) {

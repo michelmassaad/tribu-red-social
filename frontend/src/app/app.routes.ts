@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '../guards/auth';
 import { guestGuard } from '../guards/guest';
+import { adminGuard } from '../guards/admin';
 
 export const routes: Routes = [
   // { path: '', redirectTo: 'cargando', pathMatch: 'full' },
@@ -43,6 +44,25 @@ export const routes: Routes = [
       import('../components/mi-perfil/mi-perfil').then(m => m.MiPerfilComponent),
     canActivate: [authGuard],
   },
+
+  // ── DASHBOARD — solo administradores ────────────────────────
+  {
+    path: 'dashboard/usuarios',
+    loadComponent: () =>
+      import('../components/dashboard/usuarios/usuarios').then(
+        m => m.UsuariosComponent
+      ),
+    canActivate: [authGuard, adminGuard], // primero verifica sesión, después que sea admin
+  },
+  {
+    path: 'dashboard/estadisticas',
+    loadComponent: () =>
+      import('../components/dashboard/estadisticas/estadisticas').then(
+        m => m.EstadisticasComponent
+      ),
+    canActivate: [authGuard, adminGuard],
+  },
+
 
   { path: '**', redirectTo: 'cargando' },
 ];
