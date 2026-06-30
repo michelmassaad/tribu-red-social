@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsuariosService } from '../usuarios/usuarios.service';
@@ -86,11 +86,12 @@ export class AuthService {
     }
 
     // 2. Si no existe o está deshabilitado → 401
-    if (!usuario || !usuario.activo) {
+    if (!usuario) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
+    // Usuario existe pero está deshabilitado → 403 (existe, pero sin permiso)
     if (!usuario.activo) {
-      throw new UnauthorizedException('Usuario deshabilitado');
+      throw new ForbiddenException('Tu cuenta fue deshabilitada. Contactá a un administrador.');
     }
     // 3. Comparar la contraseña recibida con el hash guardado
     const passwordValida = await bcrypt.compare(dto.password, usuario.password);

@@ -61,7 +61,8 @@ export class AuthService {
       this.iniciarTimerSesion(); // ← NUEVO: iniciar el contador de 10 min al loguearse
       return true;
     } catch (err: any) {
-      const msg = err.status === 401 ? 'Credenciales inválidas.' : 'Error al iniciar sesión.';
+      // Usamos el mensaje que manda el backend en lugar de uno genérico
+      const msg = err.error?.message || 'Error al iniciar sesión.';
       this.errorMensaje.set(msg);
       return false;
     }

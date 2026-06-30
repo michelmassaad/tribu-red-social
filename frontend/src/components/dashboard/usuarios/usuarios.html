@@ -170,14 +170,16 @@
                   </span>
                 </td>
                 <td class="align-middle">
-                  @if (u.activo) {
+                  @if (u.activo && u.perfil === 'usuario')  {
                     <button class="btn btn-sm btn-outline-danger" (click)="deshabilitar(u._id)">
                       <i class="bi bi-person-x"></i>
                     </button>
                   } @else {
+                    @if (u.perfil === 'usuario')  {
                     <button class="btn btn-sm btn-outline-success" (click)="habilitar(u._id)">
                       <i class="bi bi-person-check"></i>
                     </button>
+                    }
                   }
                 </td>
               </tr>

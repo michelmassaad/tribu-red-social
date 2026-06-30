@@ -5,11 +5,12 @@ import { PublicacionesService } from '../../services/publicaciones';
 import { TarjetaPublicacionComponent } from '../tarjeta-publicacion/tarjeta-publicacion';
 import { Publicacion } from '../../models/publicacion';
 import { Usuario } from '../../models/usuario';
+import { TruncarPipe } from '../../pipes/truncar.pipe';
 
 @Component({
   selector: 'app-mi-perfil',
   standalone: true,
-  imports: [CommonModule, TarjetaPublicacionComponent],
+  imports: [CommonModule, TarjetaPublicacionComponent, TruncarPipe],
   templateUrl: './mi-perfil.html',
   styleUrl: './mi-perfil.css',
 })

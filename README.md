@@ -23,11 +23,14 @@
 ### Frontend
 - **Angular 21** — Standalone Components, Signals, Computed, Reactive Forms, Lazy Loading
 - **Bootstrap 5** + Bootstrap Icons — diseño y componentes UI
+- **Chart.js** — gráficos de estadísticas (torta, líneas, barras)
+- **Angular PWA** (`@angular/pwa`) — app instalable, service worker
 - **TypeScript** — tipado estático
+- **Pipes y Directivas propias** (ver detalle en Sprint 4)
 
 ### Backend
 - **NestJS 11** — framework Node.js con módulos, controllers y services
-- **MongoDB Atlas** + **Mongoose** — base de datos NoSQL en la nube
+- **MongoDB Atlas** + **Mongoose** — base de datos NoSQL en la nube, con aggregation pipelines para estadísticas
 - **JWT** (JSON Web Tokens) almacenados en **Cookies HttpOnly**
 - **bcryptjs** — encriptación de contraseñas
 - **Cloudinary** — almacenamiento de imágenes en la nube
@@ -108,6 +111,39 @@
 
 ---
 
+### Sprint #4 ✅
+
+**Frontend:**
+- **Permisos de administrador en publicaciones** — un usuario con perfil `administrador` ve habilitado el botón "Eliminar" en cualquier publicación, no solo en las propias (en el feed y en la página individual)
+- **Dashboard de Usuarios** (`/dashboard/usuarios`, solo admin) — listado completo de usuarios, formulario para crear nuevos definiendo el perfil (usuario/administrador) con radio buttons, y acciones para deshabilitar/habilitar cada cuenta
+- **Dashboard de Estadísticas** (`/dashboard/estadisticas`, solo admin) — tres gráficos con Chart.js, cada uno de un tipo distinto:
+  - **Torta** — publicaciones realizadas por cada usuario
+  - **Líneas** — comentarios realizados por día
+  - **Barras** — comentarios por publicación (top 10)
+  - Todos con selector de rango de fechas (desde/hasta)
+- **3 Pipes propias**:
+  - `fechaRelativa` — convierte una fecha en texto tipo "hace 5 minutos"
+  - `truncar` — corta texto largo agregando "..."
+  - `primeraMayuscula` — capitaliza la primera letra de cada palabra
+- **3 Directivas propias**:
+  - `appHighlight` — resalta una fila/elemento al pasar el mouse
+  - `appAutoFocus` — pone el foco automáticamente en un input al renderizarse
+  - `appClickFuera` — emite un evento cuando se hace click fuera del elemento (usado para cerrar el formulario de alta de usuario)
+- **PWA** — la app se puede instalar como aplicación nativa en celular o PC, con `manifest.webmanifest`, ícono propio y service worker para uso básico offline
+
+**Backend:**
+- **`AdminGuard`** — guard que verifica que el `perfil` del JWT sea `administrador`, encadenado después de `AuthGuard` en las rutas que lo requieren
+- `GET /api/usuarios` — lista todos los usuarios (solo admin)
+- `POST /api/usuarios` — crea un usuario nuevo, pudiendo definir su perfil (solo admin)
+- `DELETE /api/usuarios/:id` — deshabilita un usuario (baja lógica, `activo: false`); ese usuario recibe un mensaje específico al intentar loguearse
+- `POST /api/usuarios/:id/habilitar` — rehabilita un usuario previamente deshabilitado
+- `GET /api/estadisticas/publicaciones-por-usuario?desde=&hasta=` — cantidad de publicaciones por usuario en un rango de fechas
+- `GET /api/estadisticas/comentarios-por-dia?desde=&hasta=` — cantidad de comentarios por día en un rango de fechas
+- `GET /api/estadisticas/comentarios-por-publicacion?desde=&hasta=` — cantidad de comentarios por publicación (top 10) en un rango de fechas
+- Las tres rutas de estadísticas usan **aggregation pipelines** de MongoDB (`$match`, `$group`, `$lookup`) para agrupar y calcular los datos directamente en la base, sin procesarlos en memoria
+
+---
+
 ## 🔐 Autenticación
 
 El sistema usa **JWT almacenado en cookies HttpOnly** en lugar de localStorage:
@@ -120,6 +156,21 @@ El sistema usa **JWT almacenado en cookies HttpOnly** en lugar de localStorage:
 - A los **10 minutos** de sesión aparece un modal avisando que quedan 5 minutos con opción de extender
 - Si el usuario extiende, `/api/auth/refrescar` genera un nuevo token y reinicia el contador
 - Si no responde en 5 minutos, la sesión se cierra automáticamente
+- El JWT incluye el `perfil` del usuario — el `AdminGuard` lo usa para proteger las rutas exclusivas de administrador
+- Un usuario deshabilitado por un admin recibe un mensaje específico (403) al intentar loguearse
+
+---
+
+## 👤 Roles de usuario
+
+| Acción | Usuario | Administrador |
+|---|---|---|
+| Crear/editar/eliminar publicaciones propias | ✅ | ✅ |
+| Eliminar publicaciones de otros usuarios | ❌ | ✅ |
+| Comentar / editar comentarios propios | ✅ | ✅ |
+| Acceder al Dashboard de Usuarios | ❌ | ✅ |
+| Acceder al Dashboard de Estadísticas | ❌ | ✅ |
+| Crear, deshabilitar y habilitar usuarios | ❌ | ✅ |
 
 ---
 
@@ -134,24 +185,49 @@ tp2-red-social/
 │   │   │   ├── login/
 │   │   │   ├── registro/
 │   │   │   ├── navbar/
-│   │   │   ├── cargando/      ← pantalla de carga inicial (Sprint 3)
-│   │   │   ├── publicaciones/ ← feed con paginación y likes
-│   │   │   ├── publicacion/   ← publicación individual con comentarios (Sprint 3)
+│   │   │   ├── cargando/         ← pantalla de carga inicial (Sprint 3)
+│   │   │   ├── publicaciones/    ← feed con paginación y likes
+│   │   │   ├── publicacion/      ← publicación individual con comentarios (Sprint 3)
 │   │   │   ├── mi-perfil/
-│   │   │   └── tarjeta-publicacion/ ← componente reutilizable con comentarios
+│   │   │   ├── tarjeta-publicacion/ ← componente reutilizable con comentarios
+│   │   │   └── dashboard/        ← solo admin (Sprint 4)
+│   │   │       ├── usuarios/         ← listado + alta + baja/alta lógica
+│   │   │       └── estadisticas/     ← 3 gráficos Chart.js
 │   │   ├── services/
 │   │   │   ├── auth.ts
 │   │   │   ├── publicaciones.ts
-│   │   │   └── comentarios.ts     ← nuevo en Sprint 3
-│   │   ├── guards/        ← authGuard, guestGuard
+│   │   │   ├── comentarios.ts        ← Sprint 3
+│   │   │   └── usuarios.service.ts   ← Sprint 4 (usuarios + estadísticas)
+│   │   ├── guards/
+│   │   │   ├── auth.ts
+│   │   │   ├── guest.ts
+│   │   │   └── admin.ts              ← Sprint 4
+│   │   ├── pipes/                    ← Sprint 4
+│   │   │   ├── fecha-relativa.pipe.ts
+│   │   │   ├── truncar.pipe.ts
+│   │   │   └── primera-mayuscula.pipe.ts
+│   │   ├── directives/                ← Sprint 4
+│   │   │   ├── highlight.directive.ts
+│   │   │   ├── auto-focus.directive.ts
+│   │   │   └── click-fuera.directive.ts
 │   │   ├── models/        ← interfaces TypeScript
-│   │   └── environments/  ← URLs por entorno
+│   │   ├── environments/  ← URLs por entorno
+│   │   ├── manifest.webmanifest      ← Sprint 4 (PWA)
+│   │   └── ngsw-config.json          ← Sprint 4 (PWA)
 │   └── vercel.json
 │
 └── backend/           ← NestJS 11
     └── src/
-        ├── auth/          ← controller, service, guard, DTOs
-        ├── usuarios/      ← schema, service
+        ├── auth/
+        │   ├── guards/
+        │   │   ├── auth.guard.ts
+        │   │   └── admin.guard.ts    ← Sprint 4
+        │   ├── controller, service, DTOs
+        ├── usuarios/
+        │   ├── usuarios.controller.ts ← Sprint 4
+        │   ├── usuarios.service.ts
+        │   ├── dto/crear-usuario-admin.dto.ts ← Sprint 4
+        │   └── schemas/
         ├── publicaciones/
         │   ├── comentarios/   ← controller, service, schema, DTOs (Sprint 3)
         │   ├── dto/
@@ -159,5 +235,9 @@ tp2-red-social/
         │   ├── publicaciones.controller.ts
         │   ├── publicaciones.service.ts
         │   └── publicaciones.module.ts
+        ├── estadisticas/      ← módulo nuevo (Sprint 4)
+        │   ├── estadisticas.controller.ts
+        │   ├── estadisticas.service.ts
+        │   └── estadisticas.module.ts
         └── cloudinary/    ← servicio de upload
 ```

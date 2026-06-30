@@ -102,7 +102,11 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   cerrarSesion(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('access_token');
+    res.clearCookie('access_token', {
+    httpOnly: true,
+    sameSite: process.env['NODE_ENV'] === 'production' ? 'none' : 'lax',
+    secure: process.env['NODE_ENV'] === 'production',
+  });
     return { mensaje: 'Sesión cerrada correctamente' };
   }
 

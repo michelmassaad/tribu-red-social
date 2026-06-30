@@ -63,7 +63,7 @@ export class LoginComponent {
     await firstValueFrom(timer(1500));           // ← pausa para que se vea
     this.router.navigate(['/publicaciones']);
   } else {
-    this.errorMensaje.set('Credenciales incorrectas o usuario no registrado.');
+    this.errorMensaje.set(this.auth.errorMensaje() || 'Credenciales incorrectas o usuario no registrado.');
     this.loading.set(false);
   }
 }

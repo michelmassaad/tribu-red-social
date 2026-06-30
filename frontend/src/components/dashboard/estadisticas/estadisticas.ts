@@ -2,7 +2,6 @@ import { Component, inject, signal, OnInit, OnDestroy, AfterViewInit, ElementRef
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService } from '../../../services/usuarios.service';
-import { TruncarPipe } from '../../../pipes/truncar.pipe';
 import { Chart, registerables } from 'chart.js';
 
 // Registrar todos los componentes de Chart.js
@@ -11,7 +10,7 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-estadisticas',
   standalone: true,
-  imports: [CommonModule, FormsModule, TruncarPipe],
+  imports: [CommonModule, FormsModule],
   templateUrl: './estadisticas.html',
   styleUrl: './estadisticas.css',
 })

@@ -53,7 +53,7 @@
       @if (usuario()?.descripcionBreve) {
         <p class="text-white-50 fst-italic mb-4"
            style="border-left: 2px solid var(--app-primary); padding-left: 1rem;">
-          "{{ usuario()?.descripcionBreve }}"
+          "{{ (usuario()?.descripcionBreve || '') | truncar:3 }}"
         </p>
       }
 
