@@ -1,16 +1,20 @@
 import {
   IsEmail, IsString, IsNotEmpty,
-  MinLength, IsDateString, IsOptional, Matches,
+  MinLength, MaxLength, IsDateString, IsOptional, Matches,
 } from 'class-validator';
 
 export class RegistroDto {
 
   @IsString()
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @MaxLength(50, { message: 'Máximo 50 caracteres' })
+  @Matches(/^[a-zA-ZÀ-ÿñÑ\s'-]+$/, { message: 'El nombre solo puede contener letras y espacios' })
   nombre: string;
 
   @IsString()
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
+  @MaxLength(50, { message: 'Máximo 50 caracteres' })
+  @Matches(/^[a-zA-ZÀ-ÿñÑ\s'-]+$/, { message: 'El apellido solo puede contener letras y espacios' })
   apellido: string;
 
   @IsEmail({}, { message: 'El correo no tiene formato válido' })
@@ -18,6 +22,8 @@ export class RegistroDto {
 
   @IsString()
   @MinLength(3, { message: 'Mínimo 3 caracteres' })
+  @MaxLength(20, { message: 'Máximo 20 caracteres' })
+  @Matches(/^[a-zA-Z0-9_]+$/, { message: 'El usuario solo puede tener letras, números y guion bajo' })
   nombreUsuario: string;
 
   @IsString()
@@ -32,11 +38,13 @@ export class RegistroDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(160, { message: 'Máximo 160 caracteres' })
   descripcionBreve?: string;
 
-  @IsOptional()
-  @IsString()
-  perfil?: string;
+  // 'perfil' se eliminó a propósito. El registro público SIEMPRE crea
+  // usuarios con perfil 'usuario' — nunca hay que confiar en un valor
+  // de rol que venga del cliente. Los admins se crean solo desde
+  // POST /api/usuarios, que ya está protegido con AuthGuard + AdminGuard.
 
   // La foto viene separada — Multer la procesa, no va en el DTO
 }

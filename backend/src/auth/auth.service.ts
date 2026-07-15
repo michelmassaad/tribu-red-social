@@ -61,7 +61,7 @@ export class AuthService {
       descripcionBreve: dto.descripcionBreve || '',
       fotoPerfil,
       fotoPerfilPublicId,
-      perfil: dto.perfil || 'usuario',
+      perfil: 'usuario',
       activo: true,
     });
 
