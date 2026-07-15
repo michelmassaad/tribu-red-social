@@ -39,10 +39,8 @@ export class LoginComponent {
 
   // Usuarios de prueba actualizados para cumplir con los requisitos de la contraseña 
   usuariosTest = [
-    { identificador: 'jugador1@mail.com', password: 'Password1', label: 'Jugador 1' },
-    { identificador: 'jugador2', password: 'Password2', label: 'Jugador 2' },
-    { identificador: 'jugador3@mail.com', password: 'Password3', label: 'Jugador 3' },
-  ];
+  { identificador: 'demo@tribu.com', password: 'Demo1234', label: 'Cuenta de prueba' },
+];
 
   async onSubmit() {
   if (this.loginForm.invalid) {

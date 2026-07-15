@@ -23,15 +23,15 @@ export class RegistroComponent {
   mostrarPassword = signal(false);
 
   registroForm = this.fb.group({
-    nombre: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
-    apellido: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
-    correo: ['', [Validators.required, Validators.email]],
-    nombreUsuario: ['', [Validators.required]],
-    password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/(?=.*[A-Z])(?=.*[0-9])/)]],
-    repetirPassword: ['', [Validators.required]],
-    fechaNacimiento: ['', [Validators.required]],
-    descripcionBreve: ['', [Validators.required, Validators.maxLength(150)]],
-    perfil: ['usuario', [Validators.required]]
+  nombre: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+  apellido: ['', [Validators.required, Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
+  correo: ['', [Validators.required, Validators.email]],
+  nombreUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z0-9_]+$/)]],
+  password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/(?=.*[A-Z])(?=.*[0-9])/)]],
+  repetirPassword: ['', [Validators.required]],
+  fechaNacimiento: ['', [Validators.required]],
+  descripcionBreve: ['', [Validators.required, Validators.maxLength(160)]],
+  perfil: ['usuario', [Validators.required]]
   }, { validators: this.validarContraseñasIdenticas });
 
   private validarContraseñasIdenticas(control: AbstractControl): ValidationErrors | null {

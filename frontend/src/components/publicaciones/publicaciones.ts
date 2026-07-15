@@ -45,8 +45,8 @@ export class PublicacionesComponent implements OnInit {
   // FORMULARIO DE CREACIÓN
   // ==========================================
   crearForm = this.fb.group({
-    titulo: ['', [Validators.required, Validators.minLength(3)]],
-    descripcion: ['', [Validators.required, Validators.minLength(10)]]
+  titulo: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+  descripcion: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(2000)]]
   });
   imagenSeleccionada = signal<File | null>(null);
   imagenPreview = signal<string | null>(null); // ← nuevo

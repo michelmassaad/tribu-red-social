@@ -38,6 +38,8 @@
   font-weight: 700;
   color: var(--app-text);
   margin-bottom: 0.4rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tarjeta-descripcion {
@@ -45,6 +47,8 @@
   color: rgba(248, 250, 252, 0.75);
   line-height: 1.6;
   margin-bottom: 0.75rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .tarjeta-imagen {
