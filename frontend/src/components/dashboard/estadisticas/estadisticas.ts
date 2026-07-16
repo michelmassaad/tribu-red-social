@@ -27,6 +27,11 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
 
   cargando = signal(false);
 
+  // Guardamos los datos crudos para poder detectar cuándo vienen vacíos
+  pubPorUsuarioData = signal<any[]>([]);
+  comPorDiaData = signal<any[]>([]);
+  comPorPubData = signal<any[]>([]);
+
   // Fechas por defecto: primer día del mes hasta hoy
   desde = signal(new Date(new Date().getFullYear(), new Date().getMonth(), 1)
     .toISOString().split('T')[0]);
@@ -46,6 +51,12 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
         this.usuariosService.comentariosPorDia(this.desde(), this.hasta()),
         this.usuariosService.comentariosPorPublicacion(this.desde(), this.hasta()),
       ]);
+
+      // Guardamos los datos crudos — el template los usa para decidir
+      // si muestra el canvas o el mensaje de "sin datos"
+      this.pubPorUsuarioData.set(pubPorUser);
+      this.comPorDiaData.set(comPorDia);
+      this.comPorPubData.set(comPorPub);
 
       // Pequeño delay para que los canvas estén en el DOM
       setTimeout(() => {
@@ -95,7 +106,7 @@ export class EstadisticasComponent implements OnInit, OnDestroy {
   // ── Gráfico de líneas — comentarios por día ──────────────────
   private crearGraficoLineas(datos: any[]) {
     const ctx = this.chartComRef?.nativeElement?.getContext('2d');
-    if (!ctx) return;
+    if (!ctx || datos.length === 0) return;
 
     const chart = new Chart(ctx, {
       type: 'line',
