@@ -9,8 +9,8 @@
 
 | | URL |
 |---|---|
-| **Frontend** | [https://michel-massaad-tp-2-prog-4-2026-c1.vercel.app](https://michel-massaad-tp-2-prog-4-2026-c1.vercel.app) |
-| **Backend** | [https://michel-massaad-tp2-prog4-2026-c1.onrender.com](https://michel-massaad-tp2-prog4-2026-c1.onrender.com) |
+| **Frontend** | [https://tribu-red-social-michelmassaads-projects.vercel.app/login](https://tribu-red-social-michelmassaads-projects.vercel.app/login) |
+| **Backend** | [https://michel-massaad-tp2-prog4-2026-c1.onrender.com/api](https://michel-massaad-tp2-prog4-2026-c1.onrender.com/api) |
 
 > ⚠️ El backend corre en el plan gratuito de Render. Si tarda en responder
 > en el primer request, es el cold start del servidor (puede tardar hasta 60 segundos).
