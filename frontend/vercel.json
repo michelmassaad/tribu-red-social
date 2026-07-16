@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://michel-massaad-tp2-prog4-2026-c1.onrender.com/api/:path*"
+    }
+  ]
+}
